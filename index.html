@@ -1042,6 +1042,14 @@
     font-size:15px;
     color:var(--ink);
   }
+  .testimoni-sub{
+    font-family:'Jost',sans-serif;
+    font-size:10.5px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--gold-deep);
+    margin-top:2px;
+  }
   .testimoni-stars{
     margin-top:4px;
     color:#e6dcc0;
@@ -1406,6 +1414,7 @@
         <button type="button" class="hero-nav-btn" onclick="document.getElementById('nav-pricelist').scrollIntoView({behavior:'smooth', block:'start'})">Daftar Harga</button>
         <button type="button" class="hero-nav-btn" onclick="document.getElementById('nav-addon').scrollIntoView({behavior:'smooth', block:'start'})">Add-On</button>
         <button type="button" class="hero-nav-btn" onclick="document.getElementById('nav-terms').scrollIntoView({behavior:'smooth', block:'start'})">Syarat &amp; Ketentuan</button>
+        <button type="button" class="hero-nav-btn" onclick="document.getElementById('nav-ulasan').scrollIntoView({behavior:'smooth', block:'start'})">Testimoni</button>
       </div>
     </div>
   </section>
@@ -3140,6 +3149,7 @@
             '<div class="testimoni-card-top">' +
               '<div>' +
                 '<div class="testimoni-name">' + escapeHtml(u.nama_klien || 'Klien') + '</div>' +
+                '<div class="testimoni-sub">Wedding</div>' +
                 '<div class="testimoni-stars">' + testimoniStarsHtml(u.rating) + '</div>' +
               '</div>' +
               '<div class="testimoni-date">' + fmtTestimoniDate(u.created_at) + '</div>' +
