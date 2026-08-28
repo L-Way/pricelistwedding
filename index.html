@@ -1957,11 +1957,11 @@
         </div>
 
         <div class="form-field">
-          <label>5. Pemilihan Foto</label>
+          <label>5. Pemilihan Foto <span class="req">*</span></label>
           <p class="field-desc">Menentukan apakah hasil foto yang akan diedit dipilih langsung oleh tim fotografer, atau dipilih sendiri oleh pengantin.</p>
           <div class="radio-group radio-group-2col">
-            <label class="radio-option"><input type="radio" name="bkPhotoChoice" value="Dipilih Fotografer" checked><span>Dipilih Fotografer</span></label>
-            <label class="radio-option"><input type="radio" name="bkPhotoChoice" value="Dipilih Pengantin"><span>Dipilih Pengantin</span></label>
+            <label class="radio-option"><input type="radio" name="bkPhotoChoice" value="Dipilih Fotografer" required><span>Dipilih Fotografer</span></label>
+            <label class="radio-option"><input type="radio" name="bkPhotoChoice" value="Dipilih Pengantin" required><span>Dipilih Pengantin</span></label>
           </div>
         </div>
 
@@ -2494,13 +2494,24 @@
       closeMapPicker();
     }
 
-    document.getElementById('mapPickerModal').addEventListener('click', function(e){
-      if(e.target === this){ closeMapPicker(); }
-    });
+    // Klik di area gelap luar kotak modal -> tutup. Dicek mousedown DAN click sama-sama
+    // kena backdrop (bukan cuma click saja) supaya blok teks di dalam modal yang tak
+    // sengaja terseret sampai ke luar kotak tidak dianggap "klik di luar" dan menutup modal.
+    (function(){
+      var mapPickerModalEl = document.getElementById('mapPickerModal');
+      var mouseDownOnMapPickerBackdrop = false;
+      mapPickerModalEl.addEventListener('mousedown', function(e){ mouseDownOnMapPickerBackdrop = (e.target === this); });
+      mapPickerModalEl.addEventListener('click', function(e){
+        if(e.target === this && mouseDownOnMapPickerBackdrop) closeMapPicker();
+      });
 
-    document.getElementById('bookingModal').addEventListener('click', function(e){
-      if(e.target === this){ this.classList.remove('open'); }
-    });
+      var bookingModalEl = document.getElementById('bookingModal');
+      var mouseDownOnBookingBackdrop = false;
+      bookingModalEl.addEventListener('mousedown', function(e){ mouseDownOnBookingBackdrop = (e.target === this); });
+      bookingModalEl.addEventListener('click', function(e){
+        if(e.target === this && mouseDownOnBookingBackdrop) this.classList.remove('open');
+      });
+    })();
 
     function escapeHtml(str){
       return String(str || '').replace(/[&<>"']/g, function(ch){
