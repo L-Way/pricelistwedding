@@ -1021,6 +1021,58 @@
     margin:0 0 18px;
   }
 
+  /* ---------- Daftar Testimoni (ulasan yang sudah dipublikasikan) ---------- */
+  .testimoni-list{
+    display:flex; flex-direction:column; gap:16px;
+    margin:0 0 34px;
+  }
+  .testimoni-card{
+    background:var(--paper);
+    border:1px solid var(--hairline);
+    border-radius:4px;
+    padding:22px 24px;
+    box-shadow:0 14px 30px -22px rgba(90,70,30,0.3);
+  }
+  .testimoni-card-top{
+    display:flex; align-items:flex-start; justify-content:space-between;
+    gap:12px; flex-wrap:wrap;
+  }
+  .testimoni-name{
+    font-family:'Marcellus',serif;
+    font-size:15px;
+    color:var(--ink);
+  }
+  .testimoni-stars{
+    margin-top:4px;
+    color:#e6dcc0;
+    letter-spacing:2px;
+    font-size:14px;
+  }
+  .testimoni-stars .on{color:var(--gold);}
+  .testimoni-date{
+    font-family:'Jost',sans-serif;
+    font-size:11px;
+    color:var(--muted);
+    white-space:nowrap;
+    padding-top:2px;
+  }
+  .testimoni-comment{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:15.5px;
+    line-height:1.7;
+    color:var(--ink);
+    margin-top:12px;
+    white-space:pre-wrap;
+  }
+  .testimoni-empty,.testimoni-loading{
+    text-align:center;
+    font-family:'Jost',sans-serif;
+    font-size:13px;
+    color:var(--muted);
+    padding:24px 10px;
+  }
+
   /* ---------- footer ---------- */
   .site-footer{
     background:linear-gradient(160deg, #241C13 0%, #171310 60%, #100D0A 100%);
@@ -1670,6 +1722,10 @@
       <p class="eyebrow">Testimoni</p>
       <h2>Saran &amp; Penilaian</h2>
       <p class="desc">Sudah pernah menggunakan jasa kami? Bagikan pengalaman Anda — saran dan penilaian Anda sangat berarti untuk kami.</p>
+    </div>
+
+    <div id="testimoniListWrap" class="testimoni-list">
+      <div class="testimoni-loading">Memuat testimoni...</div>
     </div>
 
     <div class="frame review-frame">
@@ -3057,6 +3113,66 @@
       try{ reviewSupabaseClient = window.supabase.createClient(ULASAN_SUPABASE_URL, ULASAN_SUPABASE_ANON_KEY); }
       catch(e){ console.error('Gagal inisialisasi Supabase (ulasan)', e); }
     }
+
+    /* ---------- Tampilkan testimoni yang sudah dipublikasikan (dari Buku Job) ---------- */
+    function fmtTestimoniDate(iso){
+      if(!iso) return '';
+      try{
+        return new Intl.DateTimeFormat('id-ID', {day:'numeric', month:'long', year:'numeric'}).format(new Date(iso));
+      }catch(e){ return ''; }
+    }
+    function testimoniStarsHtml(rating){
+      var r = Number(rating)||0;
+      var out = '';
+      for(var i=1;i<=5;i++){ out += '<span class="' + (i<=r?'on':'') + '">★</span>'; }
+      return out;
+    }
+    function renderTestimoniList(list){
+      var wrap = document.getElementById('testimoniListWrap');
+      if(!wrap) return;
+      if(!list || list.length===0){
+        wrap.innerHTML = '<div class="testimoni-empty">Belum ada testimoni yang ditampilkan. Jadilah yang pertama memberi penilaian!</div>';
+        return;
+      }
+      wrap.innerHTML = list.map(function(u){
+        return '' +
+          '<div class="testimoni-card">' +
+            '<div class="testimoni-card-top">' +
+              '<div>' +
+                '<div class="testimoni-name">' + escapeHtml(u.nama_klien || 'Klien') + '</div>' +
+                '<div class="testimoni-stars">' + testimoniStarsHtml(u.rating) + '</div>' +
+              '</div>' +
+              '<div class="testimoni-date">' + fmtTestimoniDate(u.created_at) + '</div>' +
+            '</div>' +
+            (u.komentar ? '<div class="testimoni-comment">&ldquo;' + escapeHtml(u.komentar) + '&rdquo;</div>' : '') +
+          '</div>';
+      }).join('');
+    }
+    function loadTestimoniList(){
+      var wrap = document.getElementById('testimoniListWrap');
+      if(!reviewSupabaseClient){
+        if(wrap) wrap.innerHTML = '<div class="testimoni-empty">Testimoni belum bisa dimuat. Periksa koneksi internet Anda.</div>';
+        return;
+      }
+      reviewSupabaseClient
+        .from(ULASAN_TABLE)
+        .select('*')
+        .eq('dipublikasikan', true)
+        .order('created_at', { ascending:false })
+        .then(function(res){
+          if(res && res.error){
+            console.error('Gagal memuat testimoni', res.error);
+            if(wrap) wrap.innerHTML = '<div class="testimoni-empty">Testimoni belum bisa dimuat saat ini.</div>';
+            return;
+          }
+          renderTestimoniList(res.data || []);
+        })
+        .catch(function(err){
+          console.error('Gagal memuat testimoni', err);
+          if(wrap) wrap.innerHTML = '<div class="testimoni-empty">Testimoni belum bisa dimuat saat ini.</div>';
+        });
+    }
+    loadTestimoniList();
 
     var selectedReviewRating = 0;
     var REVIEW_RATING_LABELS = {1:'Kurang Puas', 2:'Cukup', 3:'Baik', 4:'Sangat Baik', 5:'Istimewa!'};
