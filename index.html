@@ -486,6 +486,41 @@
     margin-top:5px;
     flex-shrink:0;
   }
+  .terms-toggle{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    margin:0 auto 30px;
+    padding:11px 22px;
+    background:var(--paper);
+    border:1.5px solid var(--gold-deep);
+    border-radius:999px;
+    color:var(--gold-deep);
+    font-family:'Jost',sans-serif;
+    font-weight:500;
+    font-size:12.5px;
+    letter-spacing:0.05em;
+    cursor:pointer;
+    transition:background 0.25s ease, color 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
+  }
+  .terms-toggle:hover{
+    background:var(--gold-deep);
+    color:#fff;
+    box-shadow:0 10px 22px -10px rgba(138,106,50,0.5);
+  }
+  .terms-toggle:active{transform:scale(0.96);}
+  .terms-toggle .term-chevron{
+    width:16px;height:16px;
+    flex-shrink:0;
+    transition:transform 0.35s ease;
+  }
+  .terms-toggle.open .term-chevron{transform:rotate(180deg);}
+  .terms-wrap{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height 0.5s ease;
+  }
   /* ---------- booking CTA + modal ---------- */
   .cta-section{
     text-align:center;
@@ -1545,7 +1580,7 @@
       <div class="hero-nav">
         <button type="button" class="hero-nav-btn" onclick="document.getElementById('nav-pricelist').scrollIntoView({behavior:'smooth', block:'start'})">Daftar Harga</button>
         <button type="button" class="hero-nav-btn" onclick="document.getElementById('nav-addon').scrollIntoView({behavior:'smooth', block:'start'})">Add-On</button>
-        <button type="button" class="hero-nav-btn" onclick="document.getElementById('nav-terms').scrollIntoView({behavior:'smooth', block:'start'})">Syarat &amp; Ketentuan</button>
+        <button type="button" class="hero-nav-btn" onclick="goToTerms()">Syarat &amp; Ketentuan</button>
         <button type="button" class="hero-nav-btn" onclick="document.getElementById('nav-ulasan').scrollIntoView({behavior:'smooth', block:'start'})">Testimoni</button>
       </div>
     </div>
@@ -1776,6 +1811,12 @@
         <p class="section-sub">Term &amp; Conditions</p>
       </div>
 
+      <button type="button" class="terms-toggle" id="termsToggleBtn" onclick="toggleAllTerms(this)" aria-expanded="false" aria-controls="termsWrap">
+        <span id="termsToggleLabel">Lihat Syarat &amp; Ketentuan</span>
+        <svg class="term-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+
+      <div class="terms-wrap" id="termsWrap">
       <ol class="terms">
         <li class="term-block">
           <span class="term-num"></span>
@@ -1835,6 +1876,7 @@
           </div>
         </li>
       </ol>
+      </div>
 
     </div>
 
@@ -3256,6 +3298,40 @@
         field.appendChild(s);
       }
     })();
+  </script>
+
+  <script>
+    function goToTerms(){
+      var btn = document.getElementById('termsToggleBtn');
+      if(btn && !btn.classList.contains('open')){
+        toggleAllTerms(btn);
+      }
+      document.getElementById('nav-terms').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    function toggleAllTerms(btn){
+      var wrap = document.getElementById('termsWrap');
+      var label = document.getElementById('termsToggleLabel');
+      var isOpen = btn.classList.contains('open');
+      if(isOpen){
+        wrap.style.maxHeight = wrap.scrollHeight + 'px';
+        requestAnimationFrame(function(){
+          wrap.style.maxHeight = '0px';
+        });
+        btn.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        label.textContent = 'Lihat Syarat & Ketentuan';
+      } else {
+        btn.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+        label.textContent = 'Tutup Syarat & Ketentuan';
+        wrap.style.maxHeight = wrap.scrollHeight + 'px';
+        wrap.addEventListener('transitionend', function te(){
+          if(btn.classList.contains('open')){ wrap.style.maxHeight = 'none'; }
+          wrap.removeEventListener('transitionend', te);
+        });
+      }
+    }
   </script>
 
   <script>
