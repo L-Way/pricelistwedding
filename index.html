@@ -1234,7 +1234,119 @@
     transition:opacity 0.7s ease;
   }
   #landingScreen.landing-exit{opacity:0;pointer-events:none;}
-  .landing-inner{max-width:560px;}
+  .landing-inner{max-width:560px;position:relative;z-index:1;}
+
+  /* ---------- landing screen: mewah ambient decorations ---------- */
+  .landing-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+  .landing-bg .orb{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(60px);
+    opacity:0.55;
+    animation:orbDrift 15s ease-in-out infinite;
+  }
+  .landing-bg .orb-1{width:360px;height:360px;background:rgba(169,128,63,0.32);top:-100px;left:-80px;}
+  .landing-bg .orb-2{width:300px;height:300px;background:rgba(201,162,94,0.28);bottom:-90px;right:-60px;animation-delay:-7.5s;}
+  .landing-bg .orb-3{width:220px;height:220px;background:rgba(169,128,63,0.18);top:40%;left:50%;transform:translate(-50%,-50%);animation-delay:-4s;}
+  @keyframes orbDrift{
+    0%,100%{transform:translate(0,0) scale(1);}
+    50%{transform:translate(26px,-18px) scale(1.14);}
+  }
+  .landing-bg .orb-3{animation-name:orbDriftCenter;}
+  @keyframes orbDriftCenter{
+    0%,100%{transform:translate(-50%,-50%) scale(1);}
+    50%{transform:translate(-50%,-50%) scale(1.2);}
+  }
+  .sparkle-field{position:absolute;inset:0;}
+  .spark{
+    position:absolute;
+    width:4px;height:4px;
+    border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 7px 1.5px rgba(169,128,63,0.65);
+    opacity:0;
+    animation-name:sparkleFloat;
+    animation-timing-function:ease-in-out;
+    animation-iteration-count:infinite;
+  }
+  @keyframes sparkleFloat{
+    0%{opacity:0;transform:translateY(0) scale(0.5);}
+    15%{opacity:0.95;}
+    85%{opacity:0.5;}
+    100%{opacity:0;transform:translateY(-90px) scale(1.15);}
+  }
+  .ring-deco{
+    position:absolute;
+    left:50%;top:36%;
+    width:270px;height:270px;
+    transform:translate(-50%,-50%);
+    border:1px dashed rgba(169,128,63,0.32);
+    border-radius:50%;
+    animation:ringSpin 28s linear infinite;
+    pointer-events:none;
+    z-index:0;
+  }
+  .ring-deco::before{
+    content:"";
+    position:absolute;
+    inset:20px;
+    border:1px solid rgba(169,128,63,0.18);
+    border-radius:50%;
+  }
+  .ring-deco::after{
+    content:"";
+    position:absolute;
+    left:50%;top:-1px;
+    width:6px;height:6px;
+    margin-left:-3px;
+    background:var(--gold);
+    border-radius:50%;
+    box-shadow:0 0 8px 2px rgba(169,128,63,0.6);
+  }
+  @keyframes ringSpin{
+    to{transform:translate(-50%,-50%) rotate(360deg);}
+  }
+  .landing-title{position:relative;z-index:1;animation:titleGlow 4.5s ease-in-out infinite alternate;}
+  @keyframes titleGlow{
+    from{text-shadow:0 0 0 rgba(169,128,63,0);}
+    to{text-shadow:0 0 22px rgba(169,128,63,0.4);}
+  }
+  .landing-welcome,.landing-sub{position:relative;z-index:1;}
+  .landing-btn{position:relative;z-index:1;overflow:hidden;}
+  .landing-btn::after{
+    content:"";
+    position:absolute;
+    top:0;left:-60%;
+    width:40%;height:100%;
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
+    transform:skewX(-20deg);
+    animation:btnShine 3.4s ease-in-out infinite;
+    animation-delay:3s;
+  }
+  @keyframes btnShine{
+    0%{left:-60%;}
+    45%{left:130%;}
+    100%{left:130%;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .landing-bg .orb,.spark,.ring-deco,.landing-title,.landing-btn::after,.floating-icon{animation:none !important;}
+  }
+
+  /* ---------- landing screen: SVG icon decorations ---------- */
+  .floating-icon{
+    position:absolute;
+    color:var(--gold-deep);
+    opacity:0.28;
+    animation-name:iconFloat;
+    animation-timing-function:ease-in-out;
+    animation-iteration-count:infinite;
+    animation-direction:alternate;
+  }
+  .floating-icon svg{display:block;width:100%;height:100%;}
+  @keyframes iconFloat{
+    0%{transform:translateY(0) rotate(-4deg);}
+    100%{transform:translateY(-16px) rotate(4deg);}
+  }
 
   .landing-title{
     position:relative;
@@ -1385,7 +1497,27 @@
 <body>
 
   <div id="landingScreen">
+    <div class="landing-bg" aria-hidden="true">
+      <span class="orb orb-1"></span>
+      <span class="orb orb-2"></span>
+      <span class="orb orb-3"></span>
+      <div class="sparkle-field"></div>
+
+      <span class="floating-icon" style="width:34px;height:34px;top:12%;left:10%;animation-duration:5.5s;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.4"/></svg>
+      </span>
+      <span class="floating-icon" style="width:26px;height:26px;top:70%;left:8%;animation-duration:6.5s;animation-delay:-1.5s;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="14" r="5.2"/><circle cx="15" cy="14" r="5.2"/><path d="M12 4l1.6 3.4L17 8l-2.6 2.3.6 3.7-3-1.9-3 1.9.6-3.7L7 8l3.4-.6L12 4z"/></svg>
+      </span>
+      <span class="floating-icon" style="width:24px;height:24px;top:16%;right:10%;animation-duration:6s;animation-delay:-3s;">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21s-7.5-4.6-10-9C.4 8.5 2 4.8 5.6 4.2 8 3.8 10.2 5 12 7.4 13.8 5 16 3.8 18.4 4.2 22 4.8 23.6 8.5 22 12c-2.5 4.4-10 9-10 9z"/></svg>
+      </span>
+      <span class="floating-icon" style="width:22px;height:22px;bottom:14%;right:9%;animation-duration:5s;animation-delay:-2s;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l1.2 3.6L17 7l-3.8 1.4L12 12l-1.2-3.6L7 7l3.8-1.4L12 2z"/><path d="M5 14l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7L5 14z"/><path d="M19 15l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6L19 15z"/></svg>
+      </span>
+    </div>
     <div class="landing-inner">
+      <div class="ring-deco" aria-hidden="true"></div>
       <h1 class="landing-title" aria-label="Kaone Motret">
         <span class="letter letter-l" style="animation-delay:0.10s">K</span><span class="letter letter-l" style="animation-delay:0.22s">a</span><span class="letter letter-l" style="animation-delay:0.34s">o</span><span class="letter letter-l" style="animation-delay:0.46s">n</span><span class="letter letter-l" style="animation-delay:0.58s">e</span><span class="letter letter-c" style="animation-delay:0.82s">&nbsp;</span><span class="letter letter-r" style="animation-delay:0.70s">M</span><span class="letter letter-r" style="animation-delay:0.58s">o</span><span class="letter letter-r" style="animation-delay:0.46s">t</span><span class="letter letter-r" style="animation-delay:0.34s">r</span><span class="letter letter-r" style="animation-delay:0.22s">e</span><span class="letter letter-r" style="animation-delay:0.10s">t</span>
         <span class="landing-title-shimmer" aria-hidden="true">Kaone Motret</span>
@@ -3107,6 +3239,23 @@
         submitBtn.innerHTML = submitBtnOriginalHTML;
       });
     });
+  </script>
+
+  <script>
+    (function(){
+      var field = document.querySelector('.sparkle-field');
+      if(!field) return;
+      var count = 18;
+      for(var i=0;i<count;i++){
+        var s = document.createElement('span');
+        s.className = 'spark';
+        s.style.left = (Math.random()*100) + '%';
+        s.style.top = (55 + Math.random()*40) + '%';
+        s.style.animationDuration = (4 + Math.random()*4).toFixed(2) + 's';
+        s.style.animationDelay = (Math.random()*6).toFixed(2) + 's';
+        field.appendChild(s);
+      }
+    })();
   </script>
 
   <script>
