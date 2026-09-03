@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testimoni &mdash; Kaone Motret</title>
+<meta name="description" content="Testimoni dan penilaian klien Kaone Motret. Bagikan pengalaman Anda menggunakan jasa foto wedding kami.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Marcellus&family=Jost:wght@300;400;500;600&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#FBF7F0;
+    --bg-deep:#F3EBDC;
+    --paper:#FFFFFF;
+    --ink:#3B3128;
+    --gold:#A9803F;
+    --gold-deep:#8A6A32;
+    --gold-bright:#8A6A32;
+    --hairline:rgba(169,128,63,0.28);
+    --muted:#8C8072;
+    --wa:#3C7A5E;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;overflow-x:hidden;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Jost',sans-serif;
+    min-height:100vh;
+  }
+  .content-pad{
+    background:radial-gradient(ellipse at top, var(--bg-deep) 0%, var(--bg) 55%);
+    padding:64px 18px 90px;
+  }
+  .sheet{
+    max-width:760px;
+    margin:0 auto;
+    position:relative;
+  }
+
+  /* ---------- mini hero ---------- */
+  .hero{
+    position:relative;
+    overflow:hidden;
+    padding:70px 20px 56px;
+    background:
+      radial-gradient(circle at 14% 20%, rgba(169,128,63,0.22), transparent 45%),
+      radial-gradient(circle at 86% 15%, rgba(169,128,63,0.14), transparent 55%),
+      linear-gradient(135deg, #F8F2E5 0%, #F1E7D3 55%, #ECDFC4 100%);
+  }
+  .hero-inner{
+    max-width:820px;
+    margin:0 auto;
+    text-align:center;
+    position:relative;
+  }
+  .eyebrow-line{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:8px 10px;
+    margin:0 0 22px;
+  }
+  .eyebrow-line .dot{
+    width:6px;height:6px;
+    border-radius:50%;
+    background:var(--gold);
+    flex-shrink:0;
+  }
+  .eyebrow-thin{
+    font-family:'Jost',sans-serif;
+    font-weight:500;
+    font-size:11.5px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--gold-deep);
+    opacity:0.85;
+  }
+  .hero-title{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:500;
+    font-size:clamp(40px,9vw,64px);
+    line-height:1.05;
+    margin:0;
+    color:var(--gold-deep);
+  }
+  .hero-title em{
+    font-style:italic;
+    font-weight:400;
+    color:var(--ink);
+  }
+  .hero-sub{
+    font-family:'Jost',sans-serif;
+    font-weight:400;
+    font-size:14.5px;
+    line-height:1.75;
+    color:var(--muted);
+    max-width:520px;
+    margin:20px auto 0;
+  }
+  .back-btn{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-top:28px;
+    font-family:'Jost',sans-serif;
+    font-size:12.5px;
+    font-weight:500;
+    letter-spacing:0.05em;
+    color:var(--gold-deep);
+    text-decoration:none;
+    background:var(--paper);
+    border:1.5px solid var(--gold-deep);
+    border-radius:999px;
+    padding:11px 22px 11px 18px;
+    overflow:hidden;
+    cursor:pointer;
+    transition:background 0.25s ease, color 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
+  }
+  .back-btn svg{
+    width:14px;height:14px;
+    flex-shrink:0;
+    transition:transform 0.25s ease;
+  }
+  .back-btn:hover{
+    background:var(--gold-deep);
+    color:#fff;
+    box-shadow:0 10px 22px -10px rgba(138,106,50,0.55);
+  }
+  .back-btn:hover svg{transform:translateX(-3px);}
+  .back-btn:active{
+    transform:scale(0.94);
+  }
+  .back-btn .ripple{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,0.55);
+    transform:scale(0);
+    pointer-events:none;
+    animation:back-btn-ripple 0.6s ease-out;
+  }
+  @keyframes back-btn-ripple{
+    to{ transform:scale(2.6); opacity:0; }
+  }
+  .back-btn.is-leaving{
+    animation:back-btn-pulse 0.35s ease;
+  }
+  @keyframes back-btn-pulse{
+    0%{ transform:scale(1); }
+    40%{ transform:scale(0.9); }
+    100%{ transform:scale(1); }
+  }
+
+  .rule{
+    display:flex;align-items:center;gap:14px;
+    margin:34px 0 40px;
+  }
+  .rule .line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--hairline) 20%,var(--hairline) 80%,transparent);}
+  .rule .diamond{width:7px;height:7px;background:var(--gold);transform:rotate(45deg);}
+
+  /* ---------- intro ---------- */
+  .intro-head{
+    text-align:center;
+    margin:8px 0 44px;
+  }
+  .intro-head .eyebrow{
+    font-family:'Marcellus',serif;
+    font-size:11px;
+    letter-spacing:0.32em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin:0 0 16px;
+  }
+  .intro-head h2{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:500;
+    font-size:clamp(26px,5vw,36px);
+    color:var(--gold-deep);
+    margin:0;
+  }
+  .intro-head .desc{
+    font-family:'Jost',sans-serif;
+    font-size:14px;
+    line-height:1.75;
+    color:var(--muted);
+    max-width:520px;
+    margin:18px auto 0;
+  }
+
+  /* ---------- ornament frame ---------- */
+  .frame{
+    background:var(--paper);
+    border:1px solid var(--hairline);
+    padding:48px 34px 56px;
+    position:relative;
+    box-shadow:0 30px 60px -35px rgba(90,70,30,0.25);
+  }
+  .frame::before,.frame::after,
+  .frame-inner::before,.frame-inner::after{
+    content:"";
+    position:absolute;
+    width:26px;height:26px;
+    border:1px solid var(--gold);
+  }
+  .frame::before{top:-1px;left:-1px;border-right:none;border-bottom:none;}
+  .frame::after{top:-1px;right:-1px;border-left:none;border-bottom:none;}
+  .frame-inner::before{bottom:-1px;left:-1px;border-right:none;border-top:none;}
+  .frame-inner::after{bottom:-1px;right:-1px;border-left:none;border-top:none;}
+  .frame-inner{position:absolute;inset:0;pointer-events:none;}
+
+  @media (max-width: 680px){
+    .frame{padding-left:18px;padding-right:18px;}
+  }
+
+  /* ---------- form fields ---------- */
+  .form-field{margin-bottom:16px;}
+  .form-field label{
+    display:block;
+    font-family:'Jost',sans-serif;
+    font-weight:500;
+    font-size:12.5px;
+    letter-spacing:0.03em;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+  .req{color:#B23B4E;font-weight:600;}
+  .form-field input,
+  .form-field select,
+  .form-field textarea{
+    width:100%;
+    font-family:'Jost',sans-serif;
+    font-size:14px;
+    color:var(--ink);
+    background:var(--bg);
+    border:1px solid var(--hairline);
+    border-radius:3px;
+    padding:10px 12px;
+  }
+  .form-field input:focus,
+  .form-field select:focus,
+  .form-field textarea:focus{
+    outline:none;
+    border-color:var(--gold);
+  }
+  .form-field textarea{resize:vertical;min-height:64px;}
+
+  .form-submit{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    width:100%;
+    padding:13px 18px;
+    background:var(--wa);
+    color:#fff;
+    border:none;
+    font-family:'Jost',sans-serif;
+    font-weight:500;
+    font-size:14px;
+    letter-spacing:0.05em;
+    border-radius:3px;
+    cursor:pointer;
+    margin-top:6px;
+    transition:background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .form-submit svg{width:15px;height:15px;flex-shrink:0;}
+  .form-submit:hover{
+    background:#2F6249;
+    transform:translateY(-2px);
+    box-shadow:0 10px 20px -10px rgba(60,122,94,0.55);
+  }
+  .form-submit:disabled{
+    background:#B9B2A4;
+    cursor:not-allowed;
+    transform:none;
+    box-shadow:none;
+  }
+  .download-summary-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    width:100%;
+    padding:13px 18px;
+    background:var(--paper);
+    color:var(--gold-deep);
+    border:1.5px solid var(--gold-deep);
+    font-family:'Jost',sans-serif;
+    font-weight:500;
+    font-size:14px;
+    letter-spacing:0.03em;
+    border-radius:3px;
+    cursor:pointer;
+    margin-top:8px;
+    transition:background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+  .download-summary-btn:hover{
+    background:var(--gold-deep);
+    color:#fff;
+    transform:translateY(-2px);
+  }
+  .form-note{
+    font-size:11px;
+    color:var(--muted);
+    text-align:center;
+    margin:10px 0 0;
+  }
+  .form-note.status-ok{color:#3C7A5E;font-weight:500;}
+  .form-note.status-error{color:#B23B4E;font-weight:500;}
+
+  /* ---------- Saran & Penilaian (ulasan klien) ---------- */
+  .review-frame{margin-top:0;}
+  .star-rating{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin:6px 0 4px;
+  }
+  .star-rating .star-btn{
+    background:none;
+    border:none;
+    padding:2px;
+    cursor:pointer;
+    font-size:34px;
+    line-height:1;
+    color:#DCD3C0;
+    transition:transform 0.15s ease, color 0.15s ease;
+  }
+  .star-rating .star-btn:hover{transform:translateY(-2px) scale(1.08);}
+  .star-rating .star-btn.on{color:var(--gold);}
+  .star-rating-label{
+    text-align:center;
+    font-family:'Jost',sans-serif;
+    font-size:11.5px;
+    letter-spacing:0.05em;
+    color:var(--muted);
+    margin:0 0 18px;
+    min-height:14px;
+  }
+  .review-success{
+    text-align:center;
+    padding:20px 10px 6px;
+  }
+  .review-success .rs-icon{
+    width:56px;height:56px;border-radius:50%;
+    background:#EAF3EE;color:#3C7A5E;
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;margin:0 auto 14px;
+  }
+  .review-success h3{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:500;
+    font-size:24px;
+    color:var(--gold-deep);
+    margin:0 0 8px;
+  }
+  .review-success p{
+    font-family:'Jost',sans-serif;
+    font-size:13.5px;
+    color:var(--muted);
+    line-height:1.7;
+    margin:0 0 18px;
+  }
+
+  /* ---------- Daftar Testimoni (ulasan yang sudah dipublikasikan) ---------- */
+  .testimoni-list{
+    display:flex; flex-direction:column; gap:16px;
+    margin:0 0 34px;
+  }
+  .testimoni-card{
+    background:var(--paper);
+    border:1px solid var(--hairline);
+    border-radius:4px;
+    padding:22px 24px;
+    box-shadow:0 14px 30px -22px rgba(90,70,30,0.3);
+  }
+  .testimoni-card-top{
+    display:flex; align-items:flex-start; justify-content:space-between;
+    gap:12px; flex-wrap:wrap;
+  }
+  .testimoni-name{
+    font-family:'Marcellus',serif;
+    font-size:15px;
+    color:var(--ink);
+  }
+  .testimoni-sub{
+    font-family:'Jost',sans-serif;
+    font-size:10.5px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--gold-deep);
+    margin-top:2px;
+  }
+  .testimoni-stars{
+    margin-top:4px;
+    color:#e6dcc0;
+    letter-spacing:2px;
+    font-size:14px;
+  }
+  .testimoni-stars .on{color:var(--gold);}
+  .testimoni-date{
+    font-family:'Jost',sans-serif;
+    font-size:11px;
+    color:var(--muted);
+    white-space:nowrap;
+    padding-top:2px;
+  }
+  .testimoni-comment{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:15.5px;
+    line-height:1.7;
+    color:var(--ink);
+    margin-top:12px;
+    white-space:pre-wrap;
+  }
+  .testimoni-empty,.testimoni-loading{
+    text-align:center;
+    font-family:'Jost',sans-serif;
+    font-size:13px;
+    color:var(--muted);
+    padding:24px 10px;
+  }
+
+  /* ---------- footer ---------- */
+  .site-footer{
+    background:linear-gradient(160deg, #241C13 0%, #171310 60%, #100D0A 100%);
+    padding:52px 20px 40px;
+  }
+  .site-footer-inner{
+    max-width:760px;
+    margin:0 auto;
+    text-align:center;
+  }
+  .site-footer .note{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    color:#B4A78E;
+    font-size:15px;
+    margin:0 0 22px;
+  }
+  .contact{
+    font-family:'Marcellus',serif;
+    letter-spacing:0.2em;
+    font-size:12px;
+    text-transform:uppercase;
+    color:var(--gold-bright, #E4C465);
+  }
+  .contact span{
+    color:#B4A78E;
+    letter-spacing:0.05em;
+    display:block;
+    margin-top:10px;
+    font-family:'Jost',sans-serif;
+    text-transform:none;
+    font-size:13px;
+  }
+  .contact span a{
+    color:#B4A78E;
+    text-decoration:none;
+    border-bottom:1px solid rgba(230,196,101,0.3);
+    padding-bottom:1px;
+    transition:color 0.15s ease, border-color 0.15s ease;
+  }
+  .contact span a:hover,
+  .contact span a:focus-visible{
+    color:#E6C465;
+    border-color:#E6C465;
+  }
+  .footer-divider{
+    height:1px;
+    max-width:220px;
+    margin:28px auto;
+    background:linear-gradient(90deg, transparent, rgba(230,196,101,0.4) 50%, transparent);
+  }
+  .copyright{
+    font-family:'Jost',sans-serif;
+    font-size:11.5px;
+    letter-spacing:0.08em;
+    color:#8A7E68;
+    margin:0;
+  }
+</style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow-line">
+        <span class="dot"></span>
+        <span class="eyebrow-thin">Kaone Motret</span>
+        <span class="dot"></span>
+      </div>
+      <h1 class="hero-title">Testimoni <em>Klien Kami</em></h1>
+      <p class="hero-sub">Kumpulan kesan &amp; pesan dari klien yang sudah mempercayakan momen berharganya kepada Kaone Motret. Sudah pernah menggunakan jasa kami? Bagikan pengalaman Anda di bawah ini.</p>
+      <a class="back-btn" id="backHomeBtn" href="https://wedding.kaone.web.id/">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m0 0l6-6m-6 6l6 6"/></svg>
+        Kembali ke Halaman Utama
+      </a>
+    </div>
+  </div>
+
+  <div class="content-pad">
+    <div class="sheet">
+
+      <div class="intro-head" id="nav-ulasan">
+        <p class="eyebrow">Testimoni</p>
+        <h2>Saran &amp; Penilaian</h2>
+        <p class="desc">Berikut testimoni dari klien-klien kami. Punya pengalaman menggunakan jasa Kaone Motret? Saran dan penilaian Anda sangat berarti untuk kami.</p>
+      </div>
+
+      <div id="testimoniListWrap" class="testimoni-list">
+        <div class="testimoni-loading">Memuat testimoni...</div>
+      </div>
+
+      <div class="frame review-frame">
+        <div class="frame-inner"></div>
+
+        <div id="reviewFormWrap">
+          <div class="form-field">
+            <label for="reviewName">Nama Anda <span class="req">*</span></label>
+            <input type="text" id="reviewName" placeholder="Nama lengkap" autocomplete="name" required>
+          </div>
+
+          <div class="form-field">
+            <label for="reviewJenisAcara">Jenis Acara <span class="req">*</span></label>
+            <select id="reviewJenisAcara" required>
+              <option value="" disabled selected>Pilih jenis acara</option>
+              <option value="Wedding">Wedding</option>
+              <option value="Patuaekkon">Patuaekkon</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label>Penilaian Bintang <span class="req">*</span></label>
+            <div class="star-rating" id="reviewStars">
+              <button type="button" class="star-btn" data-star="1" aria-label="1 bintang">★</button>
+              <button type="button" class="star-btn" data-star="2" aria-label="2 bintang">★</button>
+              <button type="button" class="star-btn" data-star="3" aria-label="3 bintang">★</button>
+              <button type="button" class="star-btn" data-star="4" aria-label="4 bintang">★</button>
+              <button type="button" class="star-btn" data-star="5" aria-label="5 bintang">★</button>
+            </div>
+            <p class="star-rating-label" id="reviewStarsLabel">Ketuk bintang untuk memberi nilai</p>
+          </div>
+
+          <div class="form-field">
+            <label for="reviewComment">Saran, Kesan &amp; Pesan <span class="req">*</span></label>
+            <textarea id="reviewComment" rows="4" placeholder="Ceritakan pengalaman Anda menggunakan jasa Kaone Motret..." required></textarea>
+          </div>
+
+          <button type="button" class="form-submit" id="reviewSubmitBtn" onclick="handleSubmitReview()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            Kirim Penilaian
+          </button>
+          <p class="form-note" id="reviewStatus"></p>
+        </div>
+
+        <div id="reviewSuccessWrap" class="review-success" style="display:none;">
+          <div class="rs-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="26" height="26"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <h3>Terima Kasih!</h3>
+          <p>Penilaian dan saran Anda sudah kami terima dengan baik. Semoga hari Anda menyenangkan!</p>
+          <button type="button" class="download-summary-btn" onclick="resetReviewForm()">Kirim Ulasan Lain</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <p class="note">Harga dapat berubah sewaktu-waktu &middot; syarat &amp; ketentuan berlaku</p>
+      <div class="contact">
+        Kaone Motret
+        <span>
+          <a href="https://wa.me/6285117071704" target="_blank" rel="noopener">WhatsApp 0851-1707-1704</a>
+          &nbsp;&middot;&nbsp;
+          <a href="https://instagram.com/kaonemotret" target="_blank" rel="noopener">Instagram @kaonemotret</a>
+        </span>
+      </div>
+      <div class="footer-divider"></div>
+      <p class="copyright">&copy; Kaone Motret 2026. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      var btn = document.getElementById('backHomeBtn');
+      if(!btn) return;
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        var rect = btn.getBoundingClientRect();
+        var ripple = document.createElement('span');
+        var size = Math.max(rect.width, rect.height) * 1.4;
+        ripple.className = 'ripple';
+        ripple.style.width = size + 'px';
+        ripple.style.height = size + 'px';
+        ripple.style.left = ((e.clientX - rect.left) - size/2) + 'px';
+        ripple.style.top = ((e.clientY - rect.top) - size/2) + 'px';
+        btn.appendChild(ripple);
+        btn.classList.add('is-leaving');
+        var target = btn.getAttribute('href');
+        setTimeout(function(){
+          window.location.href = target;
+        }, 320);
+      });
+    })();
+
+    function escapeHtml(str){
+      return String(str || '').replace(/[&<>"']/g, function(ch){
+        return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch];
+      });
+    }
+
+    /* =========================================================
+       SARAN & PENILAIAN (ulasan klien)
+       Dikirim langsung ke tabel Supabase "kaone_motret_ulasan" — tabel yang
+       sama yang dibaca oleh menu "Saran & Penilaian" di Buku Job Kaone Motret
+       (rekapjob-online.html), sehingga ulasan yang masuk lewat halaman ini
+       otomatis tampil di sana, dan juga sinkron dengan halaman pricelist utama.
+    ========================================================= */
+    var ULASAN_SUPABASE_URL = 'https://gyleppavsgbtrlgbyztv.supabase.co';
+    var ULASAN_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5bGVwcGF2c2didHJsZ2J5enR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NjU0MDQsImV4cCI6MjEwMzM0MTQwNH0.0t7bMoTjgd-c48O37wo1QyGFsFnjrRiAkDzH8VMgw-Q';
+    var ULASAN_TABLE = 'kaone_motret_ulasan';
+
+    var reviewSupabaseClient = null;
+    if(window.supabase){
+      try{ reviewSupabaseClient = window.supabase.createClient(ULASAN_SUPABASE_URL, ULASAN_SUPABASE_ANON_KEY); }
+      catch(e){ console.error('Gagal inisialisasi Supabase (ulasan)', e); }
+    }
+
+    /* ---------- Tampilkan testimoni yang sudah dipublikasikan (dari Buku Job) ---------- */
+    function fmtTestimoniDate(iso){
+      if(!iso) return '';
+      try{
+        return new Intl.DateTimeFormat('id-ID', {day:'numeric', month:'long', year:'numeric'}).format(new Date(iso));
+      }catch(e){ return ''; }
+    }
+    function testimoniStarsHtml(rating){
+      var r = Number(rating)||0;
+      var out = '';
+      for(var i=1;i<=5;i++){ out += '<span class="' + (i<=r?'on':'') + '">★</span>'; }
+      return out;
+    }
+    function testimoniJenisAcaraLabel(u){
+      var asal = (u.asal_form || '').toLowerCase();
+      if(asal === 'biodata'){
+        return u.jenis_acara || 'Acara';
+      }
+      if(asal === 'wedding'){
+        return u.jenis_acara || 'Wedding / Patuaekkon';
+      }
+      var MAP = {
+        mangayun: 'Mangayun / Aqiqah',
+        margondang: 'Margondang',
+        prewedding: 'Prewedding'
+      };
+      return MAP[asal] || 'Wedding / Patuaekkon';
+    }
+    function renderTestimoniList(list){
+      var wrap = document.getElementById('testimoniListWrap');
+      if(!wrap) return;
+      if(!list || list.length===0){
+        wrap.innerHTML = '<div class="testimoni-empty">Belum ada testimoni yang ditampilkan. Jadilah yang pertama memberi penilaian!</div>';
+        return;
+      }
+      wrap.innerHTML = list.map(function(u){
+        return '' +
+          '<div class="testimoni-card">' +
+            '<div class="testimoni-card-top">' +
+              '<div>' +
+                '<div class="testimoni-name">' + escapeHtml(u.nama_klien || 'Klien') + '</div>' +
+                '<div class="testimoni-sub">' + escapeHtml(testimoniJenisAcaraLabel(u)) + '</div>' +
+                '<div class="testimoni-stars">' + testimoniStarsHtml(u.rating) + '</div>' +
+              '</div>' +
+              '<div class="testimoni-date">' + fmtTestimoniDate(u.created_at) + '</div>' +
+            '</div>' +
+            (u.komentar ? '<div class="testimoni-comment">&ldquo;' + escapeHtml(u.komentar) + '&rdquo;</div>' : '') +
+          '</div>';
+      }).join('');
+    }
+    function loadTestimoniList(){
+      var wrap = document.getElementById('testimoniListWrap');
+      if(!reviewSupabaseClient){
+        if(wrap) wrap.innerHTML = '<div class="testimoni-empty">Testimoni belum bisa dimuat. Periksa koneksi internet Anda.</div>';
+        return;
+      }
+      reviewSupabaseClient
+        .from(ULASAN_TABLE)
+        .select('*')
+        .eq('dipublikasikan', true)
+        .order('created_at', { ascending:false })
+        .then(function(res){
+          if(res && res.error){
+            console.error('Gagal memuat testimoni', res.error);
+            if(wrap) wrap.innerHTML = '<div class="testimoni-empty">Testimoni belum bisa dimuat saat ini.</div>';
+            return;
+          }
+          renderTestimoniList(res.data || []);
+        })
+        .catch(function(err){
+          console.error('Gagal memuat testimoni', err);
+          if(wrap) wrap.innerHTML = '<div class="testimoni-empty">Testimoni belum bisa dimuat saat ini.</div>';
+        });
+    }
+    loadTestimoniList();
+
+    var selectedReviewRating = 0;
+    var REVIEW_RATING_LABELS = {1:'Kurang Puas', 2:'Cukup', 3:'Baik', 4:'Sangat Baik', 5:'Istimewa!'};
+
+    document.querySelectorAll('#reviewStars .star-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        selectedReviewRating = Number(btn.dataset.star);
+        updateReviewStarsUI();
+      });
+    });
+
+    function updateReviewStarsUI(){
+      document.querySelectorAll('#reviewStars .star-btn').forEach(function(btn){
+        btn.classList.toggle('on', Number(btn.dataset.star) <= selectedReviewRating);
+      });
+      var labelEl = document.getElementById('reviewStarsLabel');
+      if(labelEl){
+        labelEl.textContent = selectedReviewRating
+          ? (selectedReviewRating + ' Bintang — ' + REVIEW_RATING_LABELS[selectedReviewRating])
+          : 'Ketuk bintang untuk memberi nilai';
+      }
+    }
+
+    function handleSubmitReview(){
+      var nameEl = document.getElementById('reviewName');
+      var jenisAcaraEl = document.getElementById('reviewJenisAcara');
+      var commentEl = document.getElementById('reviewComment');
+      var status = document.getElementById('reviewStatus');
+      var btn = document.getElementById('reviewSubmitBtn');
+
+      var nama = nameEl.value.trim();
+      var jenisAcara = jenisAcaraEl ? jenisAcaraEl.value : '';
+      var komentar = commentEl.value.trim();
+
+      if(!nama){
+        status.textContent = 'Nama wajib diisi terlebih dahulu.';
+        status.className = 'form-note status-error';
+        nameEl.focus();
+        return;
+      }
+      if(!jenisAcara){
+        status.textContent = 'Silakan pilih jenis acara terlebih dahulu.';
+        status.className = 'form-note status-error';
+        if(jenisAcaraEl) jenisAcaraEl.focus();
+        return;
+      }
+      if(!selectedReviewRating){
+        status.textContent = 'Silakan pilih penilaian bintang terlebih dahulu.';
+        status.className = 'form-note status-error';
+        return;
+      }
+      if(!komentar){
+        status.textContent = 'Saran, kesan & pesan wajib diisi terlebih dahulu.';
+        status.className = 'form-note status-error';
+        commentEl.focus();
+        return;
+      }
+      if(!reviewSupabaseClient){
+        status.textContent = 'Gagal terhubung ke server. Periksa koneksi internet Anda lalu muat ulang halaman.';
+        status.className = 'form-note status-error';
+        return;
+      }
+
+      btn.disabled = true;
+      var originalHTML = btn.innerHTML;
+      btn.innerHTML = '<span>Mengirim...</span>';
+      status.textContent = '';
+      status.className = 'form-note';
+
+      reviewSupabaseClient
+        .from(ULASAN_TABLE)
+        .insert({ nama_klien: nama, rating: selectedReviewRating, komentar: komentar, asal_form: 'wedding', jenis_acara: jenisAcara })
+        .then(function(res){
+          btn.disabled = false;
+          btn.innerHTML = originalHTML;
+          if(res && res.error){
+            console.error('Gagal mengirim ulasan', res.error);
+            status.textContent = 'Gagal mengirim ulasan. Silakan coba lagi beberapa saat lagi.';
+            status.className = 'form-note status-error';
+            return;
+          }
+          document.getElementById('reviewFormWrap').style.display = 'none';
+          document.getElementById('reviewSuccessWrap').style.display = 'block';
+        })
+        .catch(function(err){
+          btn.disabled = false;
+          btn.innerHTML = originalHTML;
+          console.error('Gagal mengirim ulasan', err);
+          status.textContent = 'Gagal mengirim ulasan. Periksa koneksi internet Anda lalu coba lagi.';
+          status.className = 'form-note status-error';
+        });
+    }
+
+    function resetReviewForm(){
+      document.getElementById('reviewName').value = '';
+      var jenisAcaraEl = document.getElementById('reviewJenisAcara');
+      if(jenisAcaraEl) jenisAcaraEl.value = '';
+      document.getElementById('reviewComment').value = '';
+      selectedReviewRating = 0;
+      updateReviewStarsUI();
+      var status = document.getElementById('reviewStatus');
+      status.textContent = '';
+      status.className = 'form-note';
+      document.getElementById('reviewFormWrap').style.display = 'block';
+      document.getElementById('reviewSuccessWrap').style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>
