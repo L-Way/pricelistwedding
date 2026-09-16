@@ -992,6 +992,20 @@
     border-color:#3C7A5E;
     color:#2F6249;
   }
+  .copy-modal-textarea{
+    width:100%;
+    min-height:220px;
+    padding:12px;
+    border:1px solid var(--hairline);
+    border-radius:4px;
+    font-family:'Jost',sans-serif;
+    font-size:12.5px;
+    line-height:1.6;
+    color:var(--ink);
+    background:var(--bg);
+    resize:vertical;
+    margin-bottom:14px;
+  }
   .form-note{
     font-size:11px;
     color:var(--muted);
@@ -1007,21 +1021,28 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    gap:10px;
+    gap:2px;
     margin:6px 0 4px;
+    touch-action:pan-y;
   }
   .star-rating .star-btn{
     background:none;
     border:none;
-    padding:2px;
+    padding:8px;
     cursor:pointer;
     font-size:34px;
     line-height:1;
     color:#DCD3C0;
-    transition:transform 0.15s ease, color 0.15s ease;
+    transition:transform 0.1s ease, color 0.1s ease;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+    border-radius:8px;
   }
   .star-rating .star-btn:hover{transform:translateY(-2px) scale(1.08);}
+  .star-rating .star-btn:active{transform:translateY(0) scale(0.9);}
   .star-rating .star-btn.on{color:var(--gold);}
+  .star-rating .star-btn:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
   .star-rating-label{
     text-align:center;
     font-family:'Jost',sans-serif;
@@ -1526,6 +1547,24 @@
     background:rgba(255,255,255,0.18);
     transform:translateY(-1px);
   }
+  .hero-nav-icon-btn{
+    width:34px;height:34px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.35);
+    border-radius:999px;
+    color:inherit;
+    cursor:pointer;
+    transition:background 0.2s ease, transform 0.2s ease;
+  }
+  .hero-nav-icon-btn svg{width:15px;height:15px;flex-shrink:0;}
+  .hero-nav-icon-btn:hover{
+    background:rgba(255,255,255,0.18);
+    transform:translateY(-1px);
+  }
   html{scroll-behavior:smooth;}
 </style>
 </head>
@@ -1582,6 +1621,12 @@
         <button type="button" class="hero-nav-btn" onclick="document.getElementById('nav-addon').scrollIntoView({behavior:'smooth', block:'start'})">Add-On</button>
         <button type="button" class="hero-nav-btn" onclick="goToTerms()">Syarat &amp; Ketentuan</button>
         <button type="button" class="hero-nav-btn" onclick="document.getElementById('nav-ulasan').scrollIntoView({behavior:'smooth', block:'start'})">Testimoni</button>
+        <button type="button" class="hero-nav-icon-btn" id="navCopyDataBtn" aria-label="Salin Data Klien" title="Salin Data Klien" onclick="openCopyDataPopup()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></svg>
+        </button>
+        <button type="button" class="hero-nav-icon-btn" id="navPasteDataBtn" aria-label="Masukkan Data" title="Masukkan Data" onclick="openModal('pasteDataModal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M9 16h6M9 8h1M13 3H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8l-5-5z"/></svg>
+        </button>
       </div>
     </div>
   </section>
@@ -1891,12 +1936,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
           Isi Formulir Pemesanan
         </button>
-        <button type="button" class="cta-btn cta-btn-outline" onclick="openModal('pasteDataModal')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12h6M9 16h6M9 8h1M13 3H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8l-5-5z"/></svg>
-          Masukkan Data
-        </button>
       </div>
-      <p class="cta-note">Sudah punya salinan teks pesanan yang dikirim ke WhatsApp? Tempel di sini untuk membuat ulang gambar ringkasannya.</p>
     </div>
 
     <div class="rule"><div class="line"></div><div class="diamond"></div><div class="line"></div></div>
@@ -2006,6 +2046,31 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
         Pilih Lokasi Ini
       </button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="copyDataModal">
+    <div class="modal-box">
+      <button type="button" class="modal-close" aria-label="Tutup" onclick="closeCopyDataModal()">&times;</button>
+      <p class="modal-title">Salin Data Klien</p>
+      <p class="modal-sub" id="copyDataModalSub">Masukkan No. WhatsApp yang dipakai saat booking untuk mencari data pesanan yang sudah tersimpan ke spreadsheet. Demi privasi klien lain, data hanya bisa dicari sesuai nomor WhatsApp yang cocok persis — bukan ditampilkan begitu saja.</p>
+
+      <div class="form-field">
+        <label for="copyDataPhone">No. WhatsApp Pemesan</label>
+        <input type="tel" id="copyDataPhone" inputmode="numeric" autocomplete="tel" placeholder="Contoh: 0812xxxxxxx">
+      </div>
+      <button type="button" class="form-submit" id="copyDataSearchBtn" onclick="handleCopyDataSearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        Cari Data
+      </button>
+      <p class="form-note" id="copyDataSearchStatus"></p>
+
+      <textarea id="copyDataOutput" class="copy-modal-textarea" readonly placeholder="Hasil pencarian akan muncul di sini." onclick="this.focus();this.select();"></textarea>
+      <button type="button" class="form-submit" id="copyDataConfirmBtn" onclick="handleCopyDataConfirm()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></svg>
+        Salin ke Clipboard
+      </button>
+      <p class="form-note" id="copyDataStatus"></p>
     </div>
   </div>
 
@@ -2984,10 +3049,24 @@
     var sheetSendPromise = null;
     var lastSheetSaveResult = null;
 
+    // Snapshot data yang BENAR-BENAR sudah berhasil masuk ke spreadsheet
+    // (bukan sekadar isi form saat ini). Dipakai oleh fitur "Salin Teks
+    // Pesanan" supaya yang disalin selalu sesuai dengan yang tersimpan di
+    // spreadsheet, bukan isian form yang mungkin belum/tidak jadi tersimpan.
+    var lastSavedOrderData = null;
+    // true kalau form sudah diubah lagi SETELAH lastSavedOrderData tersimpan
+    // — jadi teks itu tercatat sebagai data pengisian sebelumnya, bukan yang
+    // sedang tampil di form sekarang.
+    var savedOrderDataStale = false;
+
     function ensureSheetSent(data){
       if(!sheetSendPromise){
         sheetSendPromise = sendDataToGoogleSheet(data).then(function(result){
           lastSheetSaveResult = result;
+          if(result && result.ok){
+            lastSavedOrderData = data;
+            savedOrderDataStale = false;
+          }
           return result;
         });
       }
@@ -3003,6 +3082,9 @@
         hasDownloadedSummary = false;
         var dlBtn = document.getElementById('downloadSummaryBtn');
         if(dlBtn){ dlBtn.classList.remove('downloaded'); }
+      }
+      if(lastSavedOrderData){
+        savedOrderDataStale = true;
       }
       if(sheetSendPromise){
         sheetSendPromise = null;
@@ -3342,6 +3424,161 @@
         submitBtn.innerHTML = submitBtnOriginalHTML;
       });
     });
+
+    /* =========================================================
+       SALIN DATA KLIEN (tombol ikon di nav bar)
+       Fitur jaga-jaga: kalau klien sudah booking (datanya sudah masuk
+       ke spreadsheet) tapi lupa/kehilangan teks pesanannya — entah
+       karena tab/browser sudah ditutup, ganti perangkat, atau lain
+       hari — siapa pun (klien/admin studio) bisa membuka tombol ikon
+       di nav bar, memasukkan No. WhatsApp yang dipakai saat booking,
+       dan mengambil ulang teks pesanan tersebut LANGSUNG DARI
+       SPREADSHEET lewat Web App (bukan lagi dari memori browser saja).
+
+       Demi privasi klien lain, pencarian WAJIB dicocokkan dengan
+       No. WhatsApp yang persis sama — server tidak pernah membalas
+       "data terakhir" tanpa syarat ke siapa pun yang membuka popup ini.
+    ========================================================= */
+    function openCopyDataPopup(){
+      var out = document.getElementById('copyDataOutput');
+      var phoneInput = document.getElementById('copyDataPhone');
+      var sub = document.getElementById('copyDataModalSub');
+      var status = document.getElementById('copyDataStatus');
+      var searchStatus = document.getElementById('copyDataSearchStatus');
+      status.textContent = '';
+      status.className = 'form-note';
+      searchStatus.textContent = '';
+      searchStatus.className = 'form-note';
+      out.value = '';
+      sub.textContent = 'Masukkan No. WhatsApp yang dipakai saat booking untuk mencari data pesanan yang sudah tersimpan ke spreadsheet. Demi privasi klien lain, data hanya bisa dicari sesuai nomor WhatsApp yang cocok persis — bukan ditampilkan begitu saja.';
+
+      // Kalau form pemesanan di halaman ini sedang/sudah diisi nomor
+      // WhatsApp-nya, isikan otomatis sebagai kemudahan (murni bantuan
+      // pengisian, tetap harus lewat pencarian & pencocokan di server).
+      var bkPhone = document.getElementById('bkPhone');
+      phoneInput.value = bkPhone ? bkPhone.value.trim() : '';
+
+      document.getElementById('copyDataModal').classList.add('open');
+    }
+
+    function closeCopyDataModal(){
+      document.getElementById('copyDataModal').classList.remove('open');
+    }
+
+    function handleCopyDataSearch(){
+      var phoneInput = document.getElementById('copyDataPhone');
+      var out = document.getElementById('copyDataOutput');
+      var sub = document.getElementById('copyDataModalSub');
+      var searchStatus = document.getElementById('copyDataSearchStatus');
+      var status = document.getElementById('copyDataStatus');
+      var btn = document.getElementById('copyDataSearchBtn');
+
+      status.textContent = '';
+      status.className = 'form-note';
+
+      var phone = normalizePhone(phoneInput.value);
+      if(!phone){
+        searchStatus.textContent = 'Masukkan No. WhatsApp terlebih dahulu.';
+        searchStatus.className = 'form-note status-error';
+        phoneInput.focus();
+        return;
+      }
+      if(!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL === 'PASTE_URL_WEB_APP_ANDA_DI_SINI'){
+        searchStatus.textContent = 'Web App belum terpasang, pencarian tidak bisa dilakukan.';
+        searchStatus.className = 'form-note status-error';
+        return;
+      }
+
+      out.value = '';
+      btn.disabled = true;
+      var originalBtnHTML = btn.innerHTML;
+      btn.innerHTML = '<span>Mencari...</span>';
+      searchStatus.textContent = 'Mencari data di spreadsheet...';
+      searchStatus.className = 'form-note';
+
+      var url = GOOGLE_SHEET_WEBAPP_URL + '?action=findClient&phone=' + encodeURIComponent(phone);
+
+      fetch(url)
+        .then(function(res){ return res.json(); })
+        .then(function(json){
+          btn.disabled = false;
+          btn.innerHTML = originalBtnHTML;
+
+          if(!json || json.ok === false){
+            searchStatus.textContent = 'Gagal mengambil data (server bermasalah). Coba lagi.';
+            searchStatus.className = 'form-note status-error';
+            return;
+          }
+          if(!json.found){
+            searchStatus.textContent = 'Tidak ditemukan data pesanan dengan No. WhatsApp tersebut.';
+            searchStatus.className = 'form-note status-error';
+            return;
+          }
+
+          out.value = decodeURIComponent(json.message);
+          sub.textContent = 'Teks pesanan sesuai data yang tersimpan di spreadsheet untuk No. WhatsApp ini.';
+          searchStatus.textContent = 'Data ditemukan.';
+          searchStatus.className = 'form-note status-ok';
+        })
+        .catch(function(){
+          btn.disabled = false;
+          btn.innerHTML = originalBtnHTML;
+          searchStatus.textContent = 'Gagal terhubung ke server. Periksa koneksi internet lalu coba lagi.';
+          searchStatus.className = 'form-note status-error';
+        });
+    }
+
+    function handleCopyDataConfirm(){
+      var out = document.getElementById('copyDataOutput');
+      var status = document.getElementById('copyDataStatus');
+      var text = out.value;
+
+      if(!text){
+        status.textContent = 'Belum ada teks untuk disalin.';
+        status.className = 'form-note status-error';
+        return;
+      }
+
+      copyToClipboard(text, function(){
+        status.textContent = 'Berhasil disalin ke clipboard.';
+        status.className = 'form-note status-ok';
+      }, function(){
+        out.focus();
+        out.select();
+        status.textContent = 'Penyalinan otomatis gagal — teks sudah terpilih di atas, tekan & tahan lalu pilih "Salin" secara manual.';
+        status.className = 'form-note status-error';
+      });
+    }
+
+    function copyToClipboard(text, onSuccess, onFail){
+      if(navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext){
+        navigator.clipboard.writeText(text).then(onSuccess).catch(function(){
+          legacyCopy(text, onSuccess, onFail);
+        });
+      } else {
+        legacyCopy(text, onSuccess, onFail);
+      }
+    }
+
+    function legacyCopy(text, onSuccess, onFail){
+      try{
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.top = '0';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        ta.setSelectionRange(0, text.length);
+        var ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if(ok){ onSuccess(); } else { onFail(); }
+      }catch(e){
+        onFail();
+      }
+    }
   </script>
 
   <script>
@@ -3508,23 +3745,99 @@
     var selectedReviewRating = 0;
     var REVIEW_RATING_LABELS = {1:'Kurang Puas', 2:'Cukup', 3:'Baik', 4:'Sangat Baik', 5:'Istimewa!'};
 
-    document.querySelectorAll('#reviewStars .star-btn').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        selectedReviewRating = Number(btn.dataset.star);
-        updateReviewStarsUI();
+    var reviewStarsContainer = document.getElementById('reviewStars');
+    var reviewStarBtns = reviewStarsContainer ? Array.prototype.slice.call(reviewStarsContainer.querySelectorAll('.star-btn')) : [];
+
+    // Menyalakan bintang sampai `rating` TANPA menyimpannya sebagai nilai
+    // terpilih — dipakai untuk preview saat hover/fokus/geser jari, supaya
+    // pengguna langsung lihat pratinjau sebelum benar-benar memilih.
+    function previewReviewStars(rating){
+      reviewStarBtns.forEach(function(btn){
+        btn.classList.toggle('on', Number(btn.dataset.star) <= rating);
       });
-    });
+    }
 
     function updateReviewStarsUI(){
-      document.querySelectorAll('#reviewStars .star-btn').forEach(function(btn){
-        btn.classList.toggle('on', Number(btn.dataset.star) <= selectedReviewRating);
-      });
+      previewReviewStars(selectedReviewRating);
       var labelEl = document.getElementById('reviewStarsLabel');
       if(labelEl){
         labelEl.textContent = selectedReviewRating
           ? (selectedReviewRating + ' Bintang — ' + REVIEW_RATING_LABELS[selectedReviewRating])
           : 'Ketuk bintang untuk memberi nilai';
       }
+    }
+
+    // Mencari bintang mana yang ada di bawah titik sentuh (dipakai saat jari
+    // digeser di atas deretan bintang), supaya bisa pilih nilai lebih cepat
+    // tanpa harus tap satu-satu.
+    function starRatingFromPoint_(clientX, clientY){
+      var el = document.elementFromPoint(clientX, clientY);
+      var btn = el ? el.closest('.star-btn') : null;
+      return btn ? Number(btn.dataset.star) : null;
+    }
+
+    reviewStarBtns.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        selectedReviewRating = Number(btn.dataset.star);
+        updateReviewStarsUI();
+      });
+      // Preview langsung saat kursor di atas / tombol difokus (keyboard).
+      btn.addEventListener('mouseenter', function(){
+        previewReviewStars(Number(btn.dataset.star));
+      });
+      btn.addEventListener('focus', function(){
+        previewReviewStars(Number(btn.dataset.star));
+      });
+    });
+
+    if(reviewStarsContainer){
+      // Balik ke nilai yang benar-benar terpilih begitu kursor/fokus
+      // meninggalkan area bintang (preview di atas cuma sementara).
+      reviewStarsContainer.addEventListener('mouseleave', function(){
+        previewReviewStars(selectedReviewRating);
+      });
+      reviewStarsContainer.addEventListener('focusout', function(){
+        setTimeout(function(){
+          if(!reviewStarsContainer.contains(document.activeElement)){
+            previewReviewStars(selectedReviewRating);
+          }
+        }, 0);
+      });
+
+      // Geser jari (drag) di layar sentuh: usap dari bintang pertama ke
+      // bintang yang dituju, lepas jari untuk memilih — jauh lebih cepat
+      // daripada mengetuk satu-satu di HP.
+      reviewStarsContainer.addEventListener('touchstart', function(e){
+        var t = e.touches[0];
+        var rating = starRatingFromPoint_(t.clientX, t.clientY);
+        if(rating){ previewReviewStars(rating); }
+      }, {passive:true});
+
+      reviewStarsContainer.addEventListener('touchmove', function(e){
+        var t = e.touches[0];
+        var rating = starRatingFromPoint_(t.clientX, t.clientY);
+        if(rating){ previewReviewStars(rating); }
+      }, {passive:true});
+
+      reviewStarsContainer.addEventListener('touchend', function(e){
+        var t = e.changedTouches[0];
+        var rating = starRatingFromPoint_(t.clientX, t.clientY);
+        if(rating){ selectedReviewRating = rating; }
+        updateReviewStarsUI();
+      });
+
+      // Panah kiri/kanan di keyboard untuk menaikkan/menurunkan nilai
+      // dengan cepat tanpa perlu geser mouse ke tombol lain.
+      reviewStarsContainer.addEventListener('keydown', function(e){
+        if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        var delta = e.key === 'ArrowRight' ? 1 : -1;
+        var next = Math.min(5, Math.max(1, (selectedReviewRating || 0) + delta));
+        selectedReviewRating = next;
+        updateReviewStarsUI();
+        var nextBtn = reviewStarsContainer.querySelector('.star-btn[data-star="' + next + '"]');
+        if(nextBtn){ nextBtn.focus(); }
+      });
     }
 
     function handleSubmitReview(){
