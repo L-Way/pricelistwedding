@@ -2078,8 +2078,12 @@
       <p class="modal-sub" id="copyDataModalSub">Masukkan No. WhatsApp yang dipakai saat booking untuk mencari data pesanan yang sudah tersimpan ke spreadsheet. Demi privasi klien lain, data hanya bisa dicari sesuai nomor WhatsApp yang cocok persis — bukan ditampilkan begitu saja.</p>
 
       <div class="form-field">
+        <label for="copyDataKey">Kode Admin <span style="opacity:.6;font-weight:400;">(kalau diaktifkan)</span></label>
+        <input type="password" id="copyDataKey" autocomplete="off" placeholder="Kosongkan kalau belum diaktifkan" onkeydown="if(event.key==='Enter'){ event.preventDefault(); handleCopyDataSearch(); }">
+      </div>
+      <div class="form-field">
         <label for="copyDataPhone">No. WhatsApp Pemesan</label>
-        <input type="tel" id="copyDataPhone" inputmode="numeric" autocomplete="tel" placeholder="Contoh: 0812xxxxxxx">
+        <input type="tel" id="copyDataPhone" inputmode="numeric" autocomplete="tel" placeholder="Contoh: 0812xxxxxxx" onkeydown="if(event.key==='Enter'){ event.preventDefault(); handleCopyDataSearch(); }">
       </div>
       <button type="button" class="form-submit" id="copyDataSearchBtn" onclick="handleCopyDataSearch()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -2368,6 +2372,47 @@
       Luxury: 4000000,
       Exclusive: 5350000
     };
+
+    // Harga add-on RESMI (sama persis dengan ADDON_PRICES bersama di
+    // Code.gs). Dipakai HANYA untuk fitur "Salin Data Klien": kolom "Add-On"
+    // yang tersimpan di sheet cuma berisi nama+jumlah TANPA harga (mis.
+    // "Cinematic, Album 1 Roll x2"), sementara gambar ringkasan & pesan WA
+    // butuh rincian harga per item. Tabel ini dipakai untuk menyusun ulang
+    // harga tersebut di sisi tampilan — bukan untuk validasi/perhitungan
+    // total (itu tetap tugas server), jadi tidak masalah kalau suatu saat
+    // sedikit basi; paling buruk harga per-item di gambar ringkasan hasil
+    // salin data jadi tidak akurat, TOTAL/SUBTOTAL yang ditampilkan tetap
+    // memakai angka asli yang tersimpan di sheet.
+    var ADDON_PRICES = {
+      'Video Shooting Dokumentasi': 1000000,
+      'Cinematic': 800000,
+      'Cetak Foto 16" + Bingkai': 200000,
+      'Cetak Foto 12" + Bingkai': 70000,
+      'Album 1 Roll': 150000,
+      'Flashdisk 8 GB': 80000,
+      'Flashdisk 16 GB': 95000,
+      'Flashdisk 32 GB': 110000,
+      'Flashdisk 64 GB': 135000,
+      'Flashdisk 128 GB': 235000
+    };
+
+    // "Nama" / "Nama xN" (format tersimpan di kolom sheet, tanpa harga) ->
+    // "Nama (RpXXX)" / "Nama xN (RpXXX)" (format yang dibaca parseBookingText
+    // dan dipakai gambar ringkasan untuk menampilkan harga per item).
+    function reconstructAddonText(raw){
+      raw = (raw || '').trim();
+      if(!raw || raw.toLowerCase() === 'tidak ada'){ return 'Tidak ada'; }
+      return raw.split(',').map(function(part){
+        part = part.trim();
+        if(!part){ return null; }
+        var m = part.match(/^(.*?)(?:\s*x(\d+))?$/);
+        var name = m ? m[1].trim() : part;
+        var qty = (m && m[2]) ? parseInt(m[2], 10) : 1;
+        var unitPrice = ADDON_PRICES.hasOwnProperty(name) ? ADDON_PRICES[name] : null;
+        if(unitPrice === null){ return part; } // nama tidak dikenal — tampilkan apa adanya
+        return name + (qty > 1 ? ' x' + qty : '') + ' (' + formatRupiah(unitPrice * qty) + ')';
+      }).filter(Boolean).join(', ');
+    }
 
     // ---------- voucher: diambil otomatis dari Google Spreadsheet ----------
     // Kode voucher TIDAK perlu diketik manual di sini lagi. Cukup isi/ubah
@@ -3119,6 +3164,102 @@
       }
     }
 
+    // Menyusun baris pesan WA dari objek data (d) — dipakai formulir SENDIRI
+    // (lewat collectBookingData) dan fitur "Salin Data Klien" (lewat
+    // lookupFieldsToFormData), sehingga hasilnya SELALU dijamin cocok
+    // dengan parseBookingText() di menu "Masukkan Data" — tidak ada dua
+    // tempat terpisah yang bisa berbeda format.
+    function buildWeddingLines(d){
+      var lines = [
+        '*PESANAN BARU - KAONE MOTRET*',
+        '_Wedding (Akad/Resepsi) & Patuaekkon_',
+        '',
+        '📋 *Data Pemesan*',
+        'Nama: ' + d.name,
+        'No. WhatsApp: ' + d.phone,
+        '',
+        '💍 *Data Mempelai*',
+        'Nama Kedua Mempelai: ' + (d.couple || '-'),
+        'IG Pengantin Wanita: ' + (d.igBride || '-'),
+        'IG Pengantin Pria: ' + (d.igGroom || '-'),
+        '',
+        '📦 *Paket & Add-On*',
+        'Paket: ' + d.pkgName + ' (' + formatRupiah(d.pkgPrice) + ')',
+        'Add-On: ' + d.addonText,
+        'Pemilihan Foto: ' + d.photoChoice,
+        '',
+        '📅 *Detail Acara*',
+        'Tanggal: ' + d.dateFormatted,
+        'Waktu: ' + (d.time || '-'),
+        'Alamat: ' + (d.address || '-'),
+        'Maps: ' + (d.maps || '-'),
+        'Adat/Konsep Pakaian: ' + (d.concept || '-'),
+        '',
+        '🧾 *Vendor & Catatan*',
+        'IG Semua Vendor: ' + (d.vendors || '-'),
+        'Catatan Untuk Fotografer: ' + (d.note || '-'),
+        '',
+        '💰 *Rincian Biaya*',
+        'Subtotal: ' + formatRupiah(d.subtotal)
+      ];
+
+      if(d.voucherCode && d.discount > 0){
+        lines.push('Kode Voucher: ' + d.voucherCode + (d.voucherDesc ? ' (' + d.voucherDesc + ')' : ''));
+        lines.push('Diskon Voucher: -' + formatRupiah(d.discount));
+      }
+      lines.push('DP: ' + formatRupiah(d.dp));
+      lines.push('Total Biaya: *' + formatRupiah(d.total) + '*');
+      lines.push('Sisa Pembayaran: *' + formatRupiah(d.remaining) + '*');
+      return lines;
+    }
+
+    // Satu baris hasil ?action=findClient (`fields`, key = nama header
+    // sheet "Data Klien") -> objek bentuk yang dipakai buildWeddingLines().
+    // Kolom "Add-On" di sheet TIDAK menyimpan harga per item (lihat
+    // reconstructAddonText di atas), jadi disusun ulang lewat ADDON_PRICES.
+    function lookupFieldsToFormData(f){
+      function get(key){ return (f[key] === undefined || f[key] === null) ? '' : String(f[key]).trim(); }
+      function num(key){
+        var v = f[key];
+        if(typeof v === 'number'){ return isFinite(v) ? Math.round(v) : 0; }
+        var str = String(v || '').replace(/rp/ig, '').replace(/\s/g, '');
+        if(!str){ return 0; }
+        str = str.replace(/(\d)[.,]\d{1,2}$/, '$1');
+        var digits = str.replace(/[^\d]/g, '');
+        return digits ? parseInt(digits, 10) : 0;
+      }
+
+      var pkgName = get('Paket');
+      var total = num('Total');
+      var dp = num('DP');
+      var sisaRaw = get('Sisa Pembayaran');
+
+      return {
+        name: get('Nama'),
+        phone: get('No. WhatsApp'),
+        pkgName: pkgName,
+        pkgPrice: num('Harga Paket') || packagePrices[pkgName] || 0,
+        addonText: reconstructAddonText(get('Add-On')),
+        photoChoice: get('Pemilihan Foto') || '-',
+        couple: get('Nama Mempelai'),
+        igBride: get('IG Pengantin Wanita'),
+        igGroom: get('IG Pengantin Pria'),
+        dateFormatted: get('Tanggal Acara') || '-',
+        time: get('Waktu Acara'),
+        address: get('Alamat'),
+        maps: get('Maps'),
+        concept: get('Konsep Pakaian'),
+        vendors: get('IG Vendor'),
+        note: get('Catatan'),
+        subtotal: num('Subtotal'),
+        voucherCode: get('Kode Voucher') || '',
+        discount: num('Diskon'),
+        dp: dp,
+        total: total,
+        remaining: sisaRaw ? num('Sisa Pembayaran') : Math.max(0, total - dp)
+      };
+    }
+
     function collectBookingData(){
       var name = document.getElementById('bkName').value.trim();
       var phone = normalizePhone(document.getElementById('bkPhone').value);
@@ -3160,58 +3301,19 @@
         ? addons.map(function(a){ return a.name + (a.qty > 1 ? ' x' + a.qty : '') + ' (' + formatRupiah(a.price * a.qty) + ')'; }).join(', ')
         : 'Tidak ada';
 
-      var lines = [
-        '*PESANAN BARU - KAONE MOTRET*',
-        '_Wedding (Akad/Resepsi) & Patuaekkon_',
-        '',
-        '📋 *Data Pemesan*',
-        'Nama: ' + name,
-        'No. WhatsApp: ' + phone,
-        '',
-        '💍 *Data Mempelai*',
-        'Nama Kedua Mempelai: ' + (couple || '-'),
-        'IG Pengantin Wanita: ' + (igBride || '-'),
-        'IG Pengantin Pria: ' + (igGroom || '-'),
-        '',
-        '📦 *Paket & Add-On*',
-        'Paket: ' + pkgName + ' (' + formatRupiah(pkgPrice) + ')',
-        'Add-On: ' + addonText,
-        'Pemilihan Foto: ' + photoChoice,
-        '',
-        '📅 *Detail Acara*',
-        'Tanggal: ' + dateFormatted,
-        'Waktu: ' + (time || '-'),
-        'Alamat: ' + (address || '-'),
-        'Maps: ' + (maps || '-'),
-        'Adat/Konsep Pakaian: ' + (concept || '-'),
-        '',
-        '🧾 *Vendor & Catatan*',
-        'IG Semua Vendor: ' + (vendors || '-'),
-        'Catatan Untuk Fotografer: ' + (note || '-'),
-        '',
-        '💰 *Rincian Biaya*',
-        'Subtotal: ' + formatRupiah(subtotal)
-      ];
-
-      if(appliedVoucher && discount > 0){
-        lines.push('Kode Voucher: ' + appliedVoucher.code + ' (diskon ' + (appliedVoucher.type === 'percent' ? appliedVoucher.value + '%' : formatRupiah(appliedVoucher.value)) + ')');
-        lines.push('Diskon Voucher: -' + formatRupiah(discount));
-      }
-      lines.push('DP: ' + formatRupiah(dp));
-      lines.push('Total Biaya: *' + formatRupiah(total) + '*');
-      lines.push('Sisa Pembayaran: *' + formatRupiah(remaining) + '*');
-
-      return {
+      var result = {
         name: name, phone: phone,
-        pkgName: pkgName, pkgPrice: pkgPrice, addons: addons,
+        pkgName: pkgName, pkgPrice: pkgPrice, addons: addons, addonText: addonText,
         couple: couple, igBride: igBride, igGroom: igGroom, photoChoice: photoChoice,
         dateFormatted: dateFormatted, time: time, address: address, maps: maps, concept: concept,
         vendors: vendors, note: note, dp: dp,
         subtotal: subtotal, discount: discount,
         voucherCode: appliedVoucher ? appliedVoucher.code : '',
-        total: total, remaining: remaining,
-        message: encodeURIComponent(lines.join('\n'))
+        voucherDesc: appliedVoucher ? ('diskon ' + (appliedVoucher.type === 'percent' ? appliedVoucher.value + '%' : formatRupiah(appliedVoucher.value))) : '',
+        total: total, remaining: remaining
       };
+      result.message = encodeURIComponent(buildWeddingLines(result).join('\n'));
+      return result;
     }
 
     function handleDownloadSummary(){
@@ -3461,9 +3563,13 @@
        No. WhatsApp yang persis sama — server tidak pernah membalas
        "data terakhir" tanpa syarat ke siapa pun yang membuka popup ini.
     ========================================================= */
+    var COPY_DATA_KEY_STORAGE = 'kaone_admin_key';
+    var copyDataToken = 0;
+
     function openCopyDataPopup(){
       var out = document.getElementById('copyDataOutput');
       var phoneInput = document.getElementById('copyDataPhone');
+      var keyInput = document.getElementById('copyDataKey');
       var sub = document.getElementById('copyDataModalSub');
       var status = document.getElementById('copyDataStatus');
       var searchStatus = document.getElementById('copyDataSearchStatus');
@@ -3480,7 +3586,13 @@
       var bkPhone = document.getElementById('bkPhone');
       phoneInput.value = bkPhone ? bkPhone.value.trim() : '';
 
+      try {
+        var savedKey = sessionStorage.getItem(COPY_DATA_KEY_STORAGE);
+        if(savedKey && !keyInput.value){ keyInput.value = savedKey; }
+      } catch(e){ /* storage bisa saja diblokir; abaikan */ }
+
       document.getElementById('copyDataModal').classList.add('open');
+      (phoneInput.value ? document.getElementById('copyDataSearchBtn') : phoneInput).focus();
     }
 
     function closeCopyDataModal(){
@@ -3489,6 +3601,7 @@
 
     function handleCopyDataSearch(){
       var phoneInput = document.getElementById('copyDataPhone');
+      var keyInput = document.getElementById('copyDataKey');
       var out = document.getElementById('copyDataOutput');
       var sub = document.getElementById('copyDataModalSub');
       var searchStatus = document.getElementById('copyDataSearchStatus');
@@ -3499,8 +3612,8 @@
       status.className = 'form-note';
 
       var phone = normalizePhone(phoneInput.value);
-      if(!phone){
-        searchStatus.textContent = 'Masukkan No. WhatsApp terlebih dahulu.';
+      if(!PHONE_PATTERN.test(phone)){
+        searchStatus.textContent = 'Format No. WhatsApp tidak valid. Contoh: 0812xxxxxxx atau +62812xxxxxxx.';
         searchStatus.className = 'form-note status-error';
         phoneInput.focus();
         return;
@@ -3511,6 +3624,8 @@
         return;
       }
 
+      var key = keyInput.value.trim();
+      var myToken = ++copyDataToken;
       out.value = '';
       btn.disabled = true;
       var originalBtnHTML = btn.innerHTML;
@@ -3518,35 +3633,61 @@
       searchStatus.textContent = 'Mencari data di spreadsheet...';
       searchStatus.className = 'form-note';
 
-      var url = GOOGLE_SHEET_WEBAPP_URL + '?action=findClient&phone=' + encodeURIComponent(phone);
+      var controller = window.AbortController ? new AbortController() : null;
+      var timer = setTimeout(function(){ if(controller){ controller.abort(); } }, 15000);
+      var url = GOOGLE_SHEET_WEBAPP_URL + '?action=findClient&form=wedding&phone=' + encodeURIComponent(phone) +
+        (key ? '&key=' + encodeURIComponent(key) : '');
 
-      fetch(url)
+      fetch(url, { signal: controller ? controller.signal : undefined })
         .then(function(res){ return res.json(); })
         .then(function(json){
-          btn.disabled = false;
-          btn.innerHTML = originalBtnHTML;
+          if(myToken !== copyDataToken){ return; }
 
           if(!json || json.ok === false){
-            searchStatus.textContent = 'Gagal mengambil data (server bermasalah). Coba lagi.';
+            searchStatus.textContent = (json && json.message) || 'Gagal mengambil data (server bermasalah). Coba lagi.';
             searchStatus.className = 'form-note status-error';
             return;
           }
+
+          try { if(key){ sessionStorage.setItem(COPY_DATA_KEY_STORAGE, key); } } catch(e){ /* abaikan */ }
+
           if(!json.found){
             searchStatus.textContent = 'Tidak ditemukan data pesanan dengan No. WhatsApp tersebut.';
             searchStatus.className = 'form-note status-error';
             return;
           }
+          if(!json.fields){
+            searchStatus.textContent = 'Web App belum mengirim data mentah (`fields`). Pastikan Code.gs sudah versi terbaru, lalu deploy ulang.';
+            searchStatus.className = 'form-note status-error';
+            return;
+          }
 
-          out.value = decodeURIComponent(json.message);
+          var data = lookupFieldsToFormData(json.fields);
+          if(!data.name && !data.pkgName){
+            console.error('Kolom yang terbaca dari sheet:', Object.keys(json.fields));
+            searchStatus.textContent = 'Data ditemukan, tetapi nama kolom di sheet tidak dikenali (lihat console).';
+            searchStatus.className = 'form-note status-error';
+            return;
+          }
+
+          out.value = buildWeddingLines(data).join('\n');
           sub.textContent = 'Teks pesanan sesuai data yang tersimpan di spreadsheet untuk No. WhatsApp ini.';
           searchStatus.textContent = 'Data ditemukan.';
           searchStatus.className = 'form-note status-ok';
         })
-        .catch(function(){
-          btn.disabled = false;
-          btn.innerHTML = originalBtnHTML;
-          searchStatus.textContent = 'Gagal terhubung ke server. Periksa koneksi internet lalu coba lagi.';
+        .catch(function(err){
+          if(myToken !== copyDataToken){ return; }
+          searchStatus.textContent = (err && err.name === 'AbortError')
+            ? 'Server terlalu lama merespons. Coba lagi.'
+            : 'Gagal terhubung ke server. Periksa koneksi internet lalu coba lagi.';
           searchStatus.className = 'form-note status-error';
+        })
+        .then(function(){
+          clearTimeout(timer);
+          if(myToken === copyDataToken){
+            btn.disabled = false;
+            btn.innerHTML = originalBtnHTML;
+          }
         });
     }
 
