@@ -746,6 +746,76 @@
   }
   .input-group input:focus{ outline:none; }
 
+  /* ---------- Alamat Acara: 3 kolom (Desa/Kecamatan/Kabupaten) ---------- */
+  .three-col{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+  @media (max-width:640px){ .three-col{ grid-template-columns:1fr; } }
+  .sub-label{ font-size:12px; color:var(--muted); margin-bottom:4px; display:block; }
+
+  /* ---------- Jarak ke Kaone Studio (di bawah kolom Maps) ---------- */
+  .maps-distance{
+    margin-top:10px;
+    padding:12px 14px;
+    border:1.5px solid var(--gold);
+    border-radius:6px;
+    background:var(--bg-deep);
+    font-size:13px;
+    line-height:1.55;
+    color:var(--ink);
+  }
+  .maps-distance[hidden]{ display:none; }
+  .maps-distance.is-warn{ border-color:#a3324a; }
+  .maps-distance .md-head{ display:flex; align-items:center; gap:10px; }
+  .maps-distance .md-ico{ font-size:1.4rem; line-height:1; flex-shrink:0; }
+  .maps-distance .md-label{ font-size:11px; color:var(--muted); }
+  .maps-distance .md-value{ font-size:1.2rem; font-weight:600; color:var(--gold-deep); line-height:1.2; }
+  .maps-distance .md-note{ font-size:11px; color:var(--muted); margin-top:2px; }
+  .maps-distance .md-msg{ color:var(--muted); }
+  .maps-distance.is-warn .md-msg{ color:#a3324a; }
+  .maps-distance .md-ask{ margin-top:10px; padding-top:8px; border-top:1px dashed var(--gold); font-weight:700; }
+  .maps-distance .md-ask a{ font-weight:600; color:#a3324a; margin-left:4px; white-space:nowrap; }
+  .maps-distance .md-btns{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .maps-distance .md-ok{ margin-top:10px; padding-top:8px; border-top:1px dashed var(--gold); font-weight:700; color:#3a7a4a; }
+  .maps-actions .btn-mini[hidden]{ display:none; }
+  .btn-mini{
+    font-family:'Jost',sans-serif;
+    font-size:12px;
+    font-weight:600;
+    color:var(--gold-deep);
+    background:var(--paper);
+    border:1px solid var(--hairline);
+    padding:8px 12px;
+    border-radius:999px;
+    cursor:pointer;
+  }
+  .btn-mini:hover{ background:var(--bg-deep); }
+
+  /* ---------- Pengambilan Hasil Cetak: Diantar / Dijemput ---------- */
+  .delivery-choice{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px; }
+  @media (max-width:560px){ .delivery-choice{ grid-template-columns:1fr; } }
+  .delivery-option{
+    position:relative;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:12px 14px;
+    border:1.5px solid var(--hairline);
+    border-radius:6px;
+    background:var(--paper);
+    cursor:pointer;
+    transition:border-color .2s ease, transform .2s ease;
+  }
+  .delivery-option:hover{ border-color:var(--gold); transform:translateY(-1px); }
+  .delivery-option input[type="radio"]{ margin-top:3px; accent-color:var(--gold-deep); flex-shrink:0; width:16px; height:16px; cursor:pointer; }
+  .delivery-option-body{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .delivery-option-title{ font-weight:700; font-size:14px; color:var(--ink); }
+  .delivery-option-desc{ font-size:12px; color:var(--muted); line-height:1.5; }
+  .delivery-option.is-checked{ border-color:var(--gold-deep); background:var(--bg-deep); }
+  .delivery-option.is-checked .delivery-option-title{ color:var(--gold-deep); }
+  .ongkir-info .md-value{ font-size:1.1rem; }
+
+  /* ---------- Tombol Kosongkan Isian (di atas formulir) ---------- */
+  .draft-notice{ display:flex; justify-content:flex-end; margin:0 0 14px; }
+
   .addon-toggle{
     display:flex;
     align-items:center;
@@ -2303,13 +2373,27 @@
         </div>
 
         <div class="form-field">
-          <label for="bkAddress">11. Alamat Acara <span class="req">*</span></label>
-          <input type="text" id="bkAddress" placeholder="Alamat lengkap lokasi acara" required>
+          <label>11. Alamat Acara <span class="req">*</span></label>
+          <div class="three-col">
+            <div>
+              <label for="bkAddressDesa" class="sub-label">Desa/Kelurahan</label>
+              <input type="text" id="bkAddressDesa" placeholder="Contoh: Aek Haruaya" required>
+            </div>
+            <div>
+              <label for="bkAddressKec" class="sub-label">Kecamatan</label>
+              <input type="text" id="bkAddressKec" placeholder="Contoh: Portibi" required>
+            </div>
+            <div>
+              <label for="bkAddressKab" class="sub-label">Kabupaten</label>
+              <input type="text" id="bkAddressKab" placeholder="Contoh: Padang Lawas Utara" required>
+            </div>
+          </div>
+          <p class="form-note">Akan otomatis dirangkai menjadi, contoh: Aek Haruaya, Kec. Portibi, Kab. Padang Lawas Utara</p>
         </div>
 
         <div class="form-field">
           <label for="bkMaps">12. Maps Acara</label>
-          <input type="text" id="bkMaps" placeholder="Link Google Maps lokasi acara">
+          <input type="text" id="bkMaps" placeholder="Pilih lewat tombol di bawah" readonly>
           <div class="maps-actions">
             <button type="button" class="maps-btn" onclick="useCurrentLocation()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s7-6.5 7-11.5A7 7 0 1 0 5 9.5C5 14.5 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/></svg>
@@ -2321,6 +2405,29 @@
             </button>
           </div>
           <p id="mapsStatus" class="maps-status"></p>
+        </div>
+
+        <div class="form-field">
+          <label>Pengambilan Hasil Cetak <span class="req">*</span></label>
+          <p class="form-note" style="margin-top:0;margin-bottom:8px;">Pilih cara Anda menerima hasil foto cetak setelah proses edit selesai.</p>
+          <div class="delivery-choice" role="radiogroup" aria-label="Pengambilan Hasil Cetak">
+            <label class="delivery-option">
+              <input type="radio" name="bkPengambilan" value="Diantar" required>
+              <span class="delivery-option-body">
+                <span class="delivery-option-title">🛵 Diantar</span>
+                <span class="delivery-option-desc">Diantar tim kami ke Alamat Acara — biaya mengikuti jarak dari studio.</span>
+              </span>
+            </label>
+            <label class="delivery-option">
+              <input type="radio" name="bkPengambilan" value="Dijemput" required>
+              <span class="delivery-option-body">
+                <span class="delivery-option-title">🏠 Dijemput</span>
+                <span class="delivery-option-desc">Diambil/dijemput sendiri di Kaone Studio — tanpa biaya tambahan.</span>
+              </span>
+            </label>
+          </div>
+          <div class="maps-distance ongkir-info" id="bkOngkirBox" hidden aria-live="polite"></div>
+          <input type="hidden" id="bkOngkir" value="0">
         </div>
 
         <div class="form-field">
@@ -2758,22 +2865,59 @@
     }
 
     // ---------- Auto-kapital LIVE (Nama, Nama Mempelai, Alamat, Konsep) ----------
-    // Huruf pertama tiap kata dinaikkan jadi kapital begitu diketik; huruf
-    // lain yang sudah diketik pengguna TIDAK diubah/dipaksa jadi kecil.
-    function capitalizeFirstOnly(str){
-      return String(str || '').replace(/(^|\s)([a-z])/g, function(_, sep, ch){
-        return sep + ch.toUpperCase();
-      });
+    // Huruf pertama tiap kata dinaikkan jadi kapital begitu diketik. Kalau
+    // SATU KATA diketik semua huruf besar (misal karena Caps Lock aktif),
+    // huruf setelah awalannya diturunkan otomatis begitu kata itu SELESAI
+    // diketik (spasi berikutnya, atau pindah kolom) — bukan di tengah
+    // mengetik, supaya tidak "berkelahi" dengan Caps Lock yang masih
+    // menyala saat huruf berikutnya diketik. Kata dengan huruf besar
+    // CAMPURAN di tengah (misal "McDonald", "AlFarizi") dibiarkan apa
+    // adanya karena dianggap disengaja.
+    function fixWordCasing(word){
+      if(!word) return word;
+      var first = word.charAt(0);
+      var rest = word.slice(1);
+      var letters = word.replace(/[^A-Za-z]/g, '');
+      var isAllUpperCaps = letters.length > 1 && letters === letters.toUpperCase() && letters !== letters.toLowerCase();
+      var newFirst = /[a-z]/.test(first) ? first.toUpperCase() : first;
+      var newRest = isAllUpperCaps ? rest.toLowerCase() : rest;
+      return newFirst + newRest;
     }
-    ['bkName','bkCouple','bkAddress','bkConcept'].forEach(function(id){
+    function capitalizeLive(str){
+      str = String(str || '');
+      var endsWithSpace = /\s$/.test(str);
+      var parts = str.split(/(\s+)/);
+      var lastWordIdx = -1;
+      parts.forEach(function(p, i){ if(p && !/^\s+$/.test(p)) lastWordIdx = i; });
+      return parts.map(function(part, i){
+        if(!part || /^\s+$/.test(part)) return part;
+        var isBeingTyped = (i === lastWordIdx) && !endsWithSpace;
+        if(isBeingTyped){
+          var first = part.charAt(0);
+          return (/[a-z]/.test(first) ? first.toUpperCase() : first) + part.slice(1);
+        }
+        return fixWordCasing(part);
+      }).join('');
+    }
+    function capitalizeFinal(str){
+      return String(str || '').split(/(\s+)/).map(function(part){
+        if(!part || /^\s+$/.test(part)) return part;
+        return fixWordCasing(part);
+      }).join('');
+    }
+    ['bkName','bkCouple','bkAddressDesa','bkAddressKec','bkAddressKab','bkConcept'].forEach(function(id){
       var el = document.getElementById(id);
       if(!el) return;
       el.addEventListener('input', function(){
-        var next = capitalizeFirstOnly(el.value);
+        var next = capitalizeLive(el.value);
         if(next === el.value) return;
         var start = el.selectionStart, end = el.selectionEnd;
         el.value = next;
         try{ el.setSelectionRange(start, end); }catch(e){ /* abaikan */ }
+      });
+      el.addEventListener('blur', function(){
+        var next = capitalizeFinal(el.value);
+        if(next !== el.value) el.value = next;
       });
     });
 
@@ -2803,6 +2947,435 @@
         try{ bkVoucherEl.setSelectionRange(start, end); }catch(e){ /* abaikan */ }
       });
     }
+
+    // ---------- Alamat Acara: gabungkan Desa/Kecamatan/Kabupaten ----------
+    function formatAddressParts(parts){
+      var out = [];
+      if(parts.desa) out.push(parts.desa);
+      if(parts.kecamatan) out.push('Kec. ' + parts.kecamatan);
+      if(parts.kabupaten) out.push('Kab. ' + parts.kabupaten);
+      return out.join(', ');
+    }
+
+    /* =========================================================
+       JARAK KE KAONE STUDIO — begitu klien memilih titik lokasi lewat
+       "Pakai Lokasi Saat Ini"/"Pilih di Peta", di bawah kolom Maps
+       otomatis muncul jarak dari Kaone Studio (lewat jalan darat via
+       OSRM; kalau rute tidak tersedia dipakai jarak garis lurus).
+       Kolom Maps bersifat readonly — hanya bisa diisi lewat tombol.
+    ========================================================= */
+    var KAONE_STUDIO = { lat: 1.458339846942726, lng: 99.64431716036893 };
+    var ONGKIR_PER_KM = 3000;
+    var ONGKIR_BATAS_GRATIS = 20000;
+    var ONGKIR_PEMBULATAN = 1000;
+    var roadDistCache = {};
+
+    function fetchWithTimeout(url, ms){
+      var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      var timer = setTimeout(function(){ if(ctrl) ctrl.abort(); }, ms);
+      return fetch(url, ctrl ? { signal: ctrl.signal } : undefined).then(function(res){
+        clearTimeout(timer);
+        return res;
+      }, function(err){
+        clearTimeout(timer);
+        throw err;
+      });
+    }
+    function isValidLatLng(lat, lng){
+      return isFinite(lat) && isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 && !(lat === 0 && lng === 0);
+    }
+    function makeCoords(a, b){
+      var lat = parseFloat(a), lng = parseFloat(b);
+      return isValidLatLng(lat, lng) ? { lat:lat, lng:lng } : null;
+    }
+    function parseCoordsFromText(raw){
+      var s = String(raw || '').trim();
+      if(!s) return null;
+      var txt = s;
+      try{ txt = decodeURIComponent(s.replace(/\+/g, ' ')); }catch(e){ txt = s; }
+      var m;
+      m = txt.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+      if(m) return makeCoords(m[1], m[2]);
+      m = txt.match(/[?&](?:q|query|ll|sll|destination|daddr|center)=\s*(?:loc:)?\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/i);
+      if(m) return makeCoords(m[1], m[2]);
+      m = txt.match(/\/(?:place|search)\/\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
+      if(m) return makeCoords(m[1], m[2]);
+      m = txt.match(/\/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+      if(m) return makeCoords(m[1], m[2]);
+      m = txt.match(/^geo:(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/i);
+      if(m) return makeCoords(m[1], m[2]);
+      m = txt.match(/^(-?\d{1,3}\.\d+)\s*[,;\s]\s*(-?\d{1,3}\.\d+)$/);
+      if(m) return makeCoords(m[1], m[2]);
+      return null;
+    }
+    function haversineKm(a, b){
+      var R = 6371, rad = Math.PI / 180;
+      var dLat = (b.lat - a.lat) * rad, dLng = (b.lng - a.lng) * rad;
+      var h = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      return 2 * R * Math.asin(Math.sqrt(h));
+    }
+    function formatKm(km){
+      if(km < 1) return Math.round(km * 1000).toLocaleString('id-ID') + ' m';
+      return km.toLocaleString('id-ID', { minimumFractionDigits: km >= 100 ? 0 : 1, maximumFractionDigits: km >= 100 ? 0 : 1 }) + ' km';
+    }
+    function fetchRoadKm(c){
+      var key = c.lat.toFixed(5) + ',' + c.lng.toFixed(5);
+      if(roadDistCache[key]) return roadDistCache[key];
+      var url = 'https://router.project-osrm.org/route/v1/driving/'
+        + KAONE_STUDIO.lng + ',' + KAONE_STUDIO.lat + ';'
+        + c.lng.toFixed(6) + ',' + c.lat.toFixed(6)
+        + '?overview=false&alternatives=false&steps=false';
+      var p = fetchWithTimeout(url, 9000).then(function(res){ return res.json(); }).then(function(d){
+        if(d && d.code === 'Ok' && d.routes && d.routes[0] && isFinite(d.routes[0].distance)){
+          return d.routes[0].distance / 1000;
+        }
+        return null;
+      }).catch(function(){ return null; });
+      roadDistCache[key] = p;
+      p.then(function(v){ if(v == null) delete roadDistCache[key]; });
+      return p;
+    }
+    function mdEl(tag, cls, text){
+      var el = document.createElement(tag);
+      if(cls) el.className = cls;
+      if(text != null) el.textContent = text;
+      return el;
+    }
+    function hitungOngkir(km){
+      if(km == null || !isFinite(km)) return null;
+      var mentah = km * ONGKIR_PER_KM;
+      if(mentah < ONGKIR_BATAS_GRATIS) return 0;
+      var bulat = ONGKIR_PEMBULATAN || 1;
+      return Math.ceil(mentah / bulat) * bulat;
+    }
+
+    var currentMapsKm = null;
+
+    function attachDistanceBox(input){
+      var field = input.closest('.form-field');
+      if(!field) return;
+      var box = mdEl('div', 'maps-distance');
+      box.hidden = true;
+      box.setAttribute('aria-live', 'polite');
+      field.appendChild(box);
+
+      var token = 0, timer = null;
+
+      function emitJarak(km){
+        currentMapsKm = km;
+        input.dispatchEvent(new CustomEvent('kaonejarak', { detail:{ km:km }, bubbles:true }));
+      }
+      function hide(){ box.hidden = true; box.innerHTML = ''; box.classList.remove('is-warn'); emitJarak(null); }
+      function showMessage(text, warn){
+        box.innerHTML = '';
+        box.classList.toggle('is-warn', !!warn);
+        box.appendChild(mdEl('div', 'md-msg', text));
+        box.hidden = false;
+        emitJarak(null);
+      }
+      function showResult(c, km, isStraight, raw){
+        box.innerHTML = '';
+        box.classList.remove('is-warn');
+        emitJarak(km);
+
+        var head = mdEl('div', 'md-head');
+        head.appendChild(mdEl('div', 'md-ico', '📏'));
+        var info = mdEl('div');
+        info.appendChild(mdEl('div', 'md-label', 'Jarak dari Kaone Studio'));
+        info.appendChild(mdEl('div', 'md-value', '± ' + formatKm(km)));
+        info.appendChild(mdEl('div', 'md-note', isStraight
+          ? 'Jarak garis lurus (rute jalan belum bisa dihitung saat ini)'
+          : 'Perkiraan jarak lewat jalan darat'));
+        head.appendChild(info);
+        box.appendChild(head);
+
+        var ask = mdEl('div', 'md-ask', 'Apakah link alamat ini sudah benar?');
+        var href = /^https?:\/\//i.test(raw) ? raw : ('https://www.google.com/maps?q=' + c.lat.toFixed(6) + ',' + c.lng.toFixed(6));
+        var open = mdEl('a', null, 'Buka link ↗');
+        open.href = href;
+        open.target = '_blank';
+        open.rel = 'noopener';
+        ask.appendChild(open);
+        box.appendChild(ask);
+
+        var btns = mdEl('div', 'md-btns');
+        var yes = mdEl('button', 'btn-mini', '✅ Ya, sudah benar');
+        yes.type = 'button';
+        var no = mdEl('button', 'btn-mini', '✏️ Belum, saya ganti');
+        no.type = 'button';
+        btns.appendChild(yes);
+        btns.appendChild(no);
+        box.appendChild(btns);
+
+        yes.addEventListener('click', function(){
+          ask.remove();
+          btns.remove();
+          box.appendChild(mdEl('div', 'md-ok', '✓ Terima kasih, lokasi sudah dikonfirmasi.'));
+        });
+        no.addEventListener('click', function(){
+          ask.remove();
+          btns.remove();
+          var msg = mdEl('div', 'md-msg', 'Silakan pilih ulang lokasinya lewat tombol "Pakai Lokasi Saat Ini" atau "Pilih di Peta" di atas.');
+          msg.style.marginTop = '0.7rem';
+          box.appendChild(msg);
+          var actions = field.querySelector('.maps-actions');
+          if(actions && actions.scrollIntoView) actions.scrollIntoView({ behavior:'smooth', block:'center' });
+        });
+        box.hidden = false;
+      }
+      function compute(c, myToken, raw){
+        showMessage('Menghitung jarak dari Kaone Studio…');
+        fetchRoadKm(c).then(function(km){
+          if(myToken !== token) return;
+          if(km != null) showResult(c, km, false, raw);
+          else showResult(c, haversineKm(KAONE_STUDIO, c), true, raw);
+        });
+      }
+      function run(){
+        var myToken = ++token;
+        var raw = (input.value || '').trim();
+        if(!raw){ hide(); return; }
+        var c = parseCoordsFromText(raw);
+        if(c){ compute(c, myToken, raw); return; }
+        showMessage('Titik lokasi belum terbaca. Silakan pilih ulang lewat tombol "Pakai Lokasi Saat Ini" atau "Pilih di Peta" di atas.', true);
+      }
+
+      var clearBtn = mdEl('button', 'btn-mini', '🗑️ Hapus');
+      clearBtn.type = 'button';
+      var actionsEl = field.querySelector('.maps-actions');
+      if(actionsEl) actionsEl.appendChild(clearBtn);
+      function syncClear(){ clearBtn.hidden = !input.value.trim(); }
+      syncClear();
+      clearBtn.addEventListener('click', function(){
+        input.value = '';
+        input.dispatchEvent(new Event('input', { bubbles:true }));
+      });
+
+      input.addEventListener('input', function(){
+        token++;
+        hide();
+        clearTimeout(timer);
+        syncClear();
+        if(!input.value.trim()) return;
+        timer = setTimeout(run, 150);
+      });
+    }
+    var bkMapsEl = document.getElementById('bkMaps');
+    if(bkMapsEl) attachDistanceBox(bkMapsEl);
+
+    /* =========================================================
+       PENGAMBILAN HASIL CETAK — "Dijemput" (gratis) atau "Diantar"
+       (kena ongkir sesuai jarak dari Kaone Studio, dihitung dari
+       jarak yang sama dengan kotak "Jarak dari Kaone Studio" di atas).
+    ========================================================= */
+    (function wireCetakPengambilan(){
+      var radios = Array.prototype.slice.call(document.querySelectorAll('input[name="bkPengambilan"]'));
+      var optionEls = Array.prototype.slice.call(document.querySelectorAll('.delivery-option'));
+      var box = document.getElementById('bkOngkirBox');
+      var ongkirField = document.getElementById('bkOngkir');
+      if(!radios.length || !box || !ongkirField) return;
+
+      function getPilihan(){
+        var checked = radios.filter(function(r){ return r.checked; })[0];
+        return checked ? checked.value : '';
+      }
+      function setOngkir(v){
+        var val = String(v || 0);
+        if(ongkirField.value === val) return;
+        ongkirField.value = val;
+      }
+      function paintOptions(){
+        optionEls.forEach(function(el){
+          var radio = el.querySelector('input[type="radio"]');
+          el.classList.toggle('is-checked', !!(radio && radio.checked));
+        });
+      }
+      function render(){
+        paintOptions();
+        var pilihan = getPilihan();
+        if(pilihan !== 'Diantar'){
+          box.hidden = true;
+          box.innerHTML = '';
+          box.classList.remove('is-warn');
+          setOngkir(0);
+          return;
+        }
+        if(currentMapsKm == null){
+          box.classList.add('is-warn');
+          box.innerHTML = '';
+          box.appendChild(mdEl('div', 'md-msg', 'Silakan tentukan titik lokasi lebih dulu lewat "Pakai Lokasi Saat Ini" atau "Pilih di Peta" di atas, agar ongkos kirim dapat dihitung.'));
+          box.hidden = false;
+          setOngkir(0);
+          return;
+        }
+        var ongkir = hitungOngkir(currentMapsKm);
+        box.classList.remove('is-warn');
+        box.innerHTML = '';
+        var head = mdEl('div', 'md-head');
+        head.appendChild(mdEl('div', 'md-ico', '🛵'));
+        var info = mdEl('div');
+        info.appendChild(mdEl('div', 'md-label', 'Ongkos Kirim Hasil Cetak'));
+        info.appendChild(mdEl('div', 'md-value', ongkir > 0 ? formatRupiah(ongkir) : 'Gratis'));
+        info.appendChild(mdEl('div', 'md-note', ongkir > 0
+          ? ('± ' + formatKm(currentMapsKm) + ' dari studio • Rp ' + ONGKIR_PER_KM.toLocaleString('id-ID') + '/km')
+          : ('± ' + formatKm(currentMapsKm) + ' dari studio • di bawah Rp ' + ONGKIR_BATAS_GRATIS.toLocaleString('id-ID') + ', jadi gratis')));
+        head.appendChild(info);
+        box.appendChild(head);
+        box.hidden = false;
+        setOngkir(ongkir);
+      }
+      radios.forEach(function(r){ r.addEventListener('change', render); });
+      document.addEventListener('kaonejarak', render);
+      render();
+    })();
+
+    /* =========================================================
+       DRAF ISIAN OTOMATIS (localStorage) — isian formulir disimpan
+       otomatis di perangkat klien selama belum terkirim ke WhatsApp,
+       jadi kalau halaman/aplikasi tertutup klien tidak perlu mengisi
+       ulang. Draf dihapus otomatis begitu pesan WhatsApp dikirim,
+       atau lewat tombol "Kosongkan Isian". Data hanya tersimpan di
+       browser klien sendiri.
+    ========================================================= */
+    var FormDraft = (function(){
+      var PREFIX = 'kaone_draft_v1_';
+      var canStore = (function(){
+        try{
+          var k = '__kaone_test__';
+          localStorage.setItem(k, '1');
+          localStorage.removeItem(k);
+          return true;
+        }catch(e){ return false; }
+      })();
+
+      function controls(formEl){
+        return Array.prototype.slice.call(formEl.querySelectorAll('input, textarea, select')).filter(function(el){
+          return ['button','submit','reset','file','password','hidden','image'].indexOf(el.type) === -1;
+        });
+      }
+      function controlKey(el, idx){
+        if(el.id) return 'id:' + el.id;
+        if(el.type === 'checkbox' || el.type === 'radio') return 'n:' + (el.name || '') + '|' + el.value;
+        return 'i:' + idx;
+      }
+      function selectDefaultIndex(sel){
+        var di = 0;
+        for(var i = 0; i < sel.options.length; i++){ if(sel.options[i].defaultSelected){ di = i; } }
+        return di;
+      }
+      function changedFromDefault(el){
+        if(el.type === 'checkbox' || el.type === 'radio') return el.checked !== el.defaultChecked;
+        if(el.tagName === 'SELECT') return el.selectedIndex !== selectDefaultIndex(el);
+        return el.value !== el.defaultValue;
+      }
+      function collect(formEl){
+        var data = {}, n = 0;
+        controls(formEl).forEach(function(el, idx){
+          var k = controlKey(el, idx);
+          if(el.type === 'checkbox' || el.type === 'radio'){
+            if(el.checked){ data[k] = true; if(changedFromDefault(el)) n++; }
+          } else if(String(el.value).trim() !== ''){
+            data[k] = el.value;
+            if(changedFromDefault(el)) n++;
+          }
+        });
+        return n ? data : null;
+      }
+      function apply(formEl, data){
+        var restored = 0, evs = [];
+        controls(formEl).forEach(function(el, idx){
+          var k = controlKey(el, idx);
+          if(!Object.prototype.hasOwnProperty.call(data, k)) return;
+          var v = data[k];
+          if(el.type === 'checkbox' || el.type === 'radio'){
+            if(v === true){ el.checked = true; evs.push([el, 'change']); restored++; }
+          } else if(typeof v === 'string'){
+            if(el.tagName === 'SELECT'){
+              var ok = Array.prototype.some.call(el.options, function(o){ return o.value === v; });
+              if(!ok) return;
+            }
+            el.value = v;
+            evs.push([el, el.tagName === 'SELECT' ? 'change' : 'input']);
+            restored++;
+          }
+        });
+        evs.forEach(function(p){ p[0].dispatchEvent(new Event(p[1], { bubbles:true })); });
+        return restored;
+      }
+      function attach(formEl, key){
+        var noop = { clear:function(){} };
+        if(!formEl || !canStore) return noop;
+
+        var storageKey = PREFIX + key;
+        var dirty = false, suspended = false, timer = null;
+
+        var notice = mdEl('div', 'draft-notice');
+        var resetBtn = mdEl('button', 'btn-mini draft-reset', '🗑️ Kosongkan Isian');
+        resetBtn.type = 'button';
+        notice.appendChild(resetBtn);
+        formEl.insertBefore(notice, formEl.firstChild);
+
+        function save(){
+          clearTimeout(timer);
+          if(!dirty) return;
+          dirty = false;
+          try{
+            var data = collect(formEl);
+            if(data) localStorage.setItem(storageKey, JSON.stringify({ v:1, t:Date.now(), f:data }));
+            else localStorage.removeItem(storageKey);
+          }catch(e){ /* penyimpanan penuh / diblokir: abaikan, formulir tetap jalan normal */ }
+        }
+        function clear(){
+          clearTimeout(timer);
+          dirty = false;
+          try{ localStorage.removeItem(storageKey); }catch(e){ /* abaikan */ }
+        }
+        function markDirty(){
+          if(suspended) return;
+          dirty = true;
+          clearTimeout(timer);
+          timer = setTimeout(save, 350);
+        }
+
+        formEl.addEventListener('input', markDirty);
+        formEl.addEventListener('change', markDirty);
+        document.addEventListener('visibilitychange', function(){ if(document.visibilityState === 'hidden') save(); });
+        window.addEventListener('pagehide', save);
+
+        try{
+          var raw = localStorage.getItem(storageKey);
+          if(raw){
+            var parsed = JSON.parse(raw);
+            if(parsed && parsed.f && typeof parsed.f === 'object'){
+              suspended = true;
+              apply(formEl, parsed.f);
+              suspended = false;
+            }
+          }
+        }catch(e){
+          suspended = false;
+          try{ localStorage.removeItem(storageKey); }catch(e2){ /* abaikan */ }
+        }
+
+        resetBtn.addEventListener('click', function(){
+          if(!window.confirm('Kosongkan semua isian pada formulir ini?')) return;
+          suspended = true;
+          formEl.reset();
+          controls(formEl).forEach(function(el){
+            var isChoice = el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'radio';
+            el.dispatchEvent(new Event(isChoice ? 'change' : 'input', { bubbles:true }));
+          });
+          suspended = false;
+          clear();
+        });
+
+        return { clear:clear };
+      }
+      return { attach:attach };
+    })();
+    var bookingFormDraft = FormDraft.attach(document.getElementById('bookingForm'), 'wedding');
+
 
     // Cegah customer memilih tanggal acara yang sudah lewat. Dihitung lewat
     // JS (bukan atribut `min` statis di HTML) supaya nilainya selalu tanggal
@@ -2861,6 +3434,7 @@
         var lng = pos.coords.longitude;
         var link = 'https://www.google.com/maps?q=' + lat + ',' + lng;
         document.getElementById('bkMaps').value = link;
+        document.getElementById('bkMaps').dispatchEvent(new Event('input', { bubbles:true }));
         status.textContent = 'Lokasi saat ini berhasil ditambahkan.';
       }, function(){
         status.textContent = 'Gagal mengambil lokasi. Pastikan izin lokasi diaktifkan, atau tempel link manual dari Google Maps.';
@@ -2911,6 +3485,7 @@
       var latlng = pickerMarker.getLatLng();
       var link = 'https://www.google.com/maps?q=' + latlng.lat.toFixed(6) + ',' + latlng.lng.toFixed(6);
       document.getElementById('bkMaps').value = link;
+      document.getElementById('bkMaps').dispatchEvent(new Event('input', { bubbles:true }));
       document.getElementById('mapsStatus').textContent = 'Lokasi pada peta berhasil dipilih.';
       closeMapPicker();
     }
@@ -2985,6 +3560,7 @@
       +       '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;"><span style="color:#8C8072;">Waktu Acara</span><span style="font-weight:500;">' + escapeHtml(d.time || '-') + '</span></div>'
       +       '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;"><span style="color:#8C8072;">Alamat Acara</span><span style="font-weight:500;text-align:right;max-width:420px;">' + escapeHtml(d.address || '-') + '</span></div>'
       +       '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;"><span style="color:#8C8072;">Maps Acara</span><span style="font-weight:500;text-align:right;max-width:420px;word-break:break-all;">' + escapeHtml(d.maps || '-') + '</span></div>'
+      +       '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;"><span style="color:#8C8072;">Pengambilan Hasil Cetak</span><span style="font-weight:500;">' + escapeHtml(d.pengambilan || '-') + (d.pengambilan === 'Diantar' ? (' (Ongkir: ' + (d.ongkir > 0 ? formatRupiah(d.ongkir) : 'Gratis') + ')') : '') + '</span></div>'
       +       '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;"><span style="color:#8C8072;">Adat/Konsep Pakaian</span><span style="font-weight:500;">' + escapeHtml(d.concept || '-') + '</span></div>'
       +     '</div>'
 
@@ -3299,6 +3875,7 @@
         'Waktu: ' + (d.time || '-'),
         'Alamat: ' + (d.address || '-'),
         'Maps: ' + (d.maps || '-'),
+        'Pengambilan Hasil Cetak: ' + (d.pengambilan || '-'),
         'Adat/Konsep Pakaian: ' + (d.concept || '-'),
         '',
         '🧾 *Vendor & Catatan*',
@@ -3316,6 +3893,9 @@
       lines.push('DP: ' + formatRupiah(d.dp));
       lines.push('Total Biaya: *' + formatRupiah(d.total) + '*');
       lines.push('Sisa Pembayaran: *' + formatRupiah(d.remaining) + '*');
+      if(d.pengambilan === 'Diantar'){
+        lines.push('Ongkos Kirim Hasil Cetak: ' + (d.ongkir > 0 ? formatRupiah(d.ongkir) : 'Gratis') + ' (dibayar langsung ke kurir, di luar Total Biaya di atas)');
+      }
       return lines;
     }
 
@@ -3379,8 +3959,15 @@
       var igGroom = document.getElementById('bkIgGroom').value.trim();
       var date = document.getElementById('bkDate').value;
       var time = document.getElementById('bkTime').value;
-      var address = document.getElementById('bkAddress').value.trim();
+      var address = formatAddressParts({
+        desa: document.getElementById('bkAddressDesa').value.trim(),
+        kecamatan: document.getElementById('bkAddressKec').value.trim(),
+        kabupaten: document.getElementById('bkAddressKab').value.trim()
+      });
       var maps = document.getElementById('bkMaps').value.trim();
+      var pengambilanEl = document.querySelector('input[name="bkPengambilan"]:checked');
+      var pengambilan = pengambilanEl ? pengambilanEl.value : '-';
+      var ongkir = parseInt(document.getElementById('bkOngkir').value, 10) || 0;
       var concept = document.getElementById('bkConcept').value.trim();
       var vendors = document.getElementById('bkVendors').value.trim();
       var note = document.getElementById('bkNote').value.trim();
@@ -3412,6 +3999,7 @@
         pkgName: pkgName, pkgPrice: pkgPrice, addons: addons, addonText: addonText,
         couple: couple, igBride: igBride, igGroom: igGroom, photoChoice: photoChoice,
         dateFormatted: dateFormatted, time: time, address: address, maps: maps, concept: concept,
+        pengambilan: pengambilan, ongkir: ongkir,
         vendors: vendors, note: note, dp: dp,
         subtotal: subtotal, discount: discount,
         voucherCode: appliedVoucher ? appliedVoucher.code : '',
@@ -3532,6 +4120,8 @@
           waktuAcara: data.time,
           alamat: data.address,
           maps: data.maps,
+          pengambilanHasilCetak: data.pengambilan,
+          ongkir: data.ongkir,
           konsepPakaian: data.concept,
           igVendor: data.vendors,
           catatan: data.note,
@@ -3650,6 +4240,7 @@
           );
         }
         window.open('https://wa.me/' + STUDIO_WA_NUMBER + '?text=' + waMessage, '_blank');
+        bookingFormDraft.clear();
         submitBtn.disabled = false;
         submitBtn.innerHTML = submitBtnOriginalHTML;
       });
