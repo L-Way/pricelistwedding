@@ -3618,7 +3618,7 @@
     function parseBookingText(text){
       var data = {
         name:'', phone:'', pkgName:'', pkgPrice:0, addons:[], couple:'', igBride:'', igGroom:'', photoChoice:'-',
-        dateFormatted:'-', time:'', address:'', maps:'', concept:'', vendors:'', note:'', dp:0,
+        dateFormatted:'-', time:'', address:'', maps:'', concept:'', pengambilan:'-', ongkir:0, vendors:'', note:'', dp:0,
         subtotal:0, discount:0, voucherCode:'', total:0, remaining:0
       };
       text.split('\n').forEach(function(rawLine){
@@ -3661,9 +3661,17 @@
           case 'waktu': data.time = value; break;
           case 'alamat': data.address = value; break;
           case 'maps': data.maps = value; break;
+          case 'pengambilan hasil cetak':
+            var pm = value.match(/^(Diantar|Dijemput)/i);
+            data.pengambilan = pm ? pm[1] : value;
+            break;
           case 'adat/konsep pakaian': data.concept = value; break;
           case 'ig semua vendor': data.vendors = value; break;
           case 'catatan untuk fotografer': data.note = value; break;
+          case 'ongkos kirim hasil cetak':
+            var om = value.match(/Rp[\d.]+/);
+            data.ongkir = om ? parseRupiah(om[0]) : 0;
+            break;
           case 'kode voucher':
             var vm = value.match(/^(\S+)/);
             data.voucherCode = vm ? vm[1] : value;
@@ -3934,6 +3942,8 @@
         time: get('Waktu Acara'),
         address: get('Alamat'),
         maps: get('Maps'),
+        pengambilan: get('Pengambilan Hasil Cetak') || '-',
+        ongkir: num('Ongkir'),
         concept: get('Konsep Pakaian'),
         vendors: get('IG Vendor'),
         note: get('Catatan'),
