@@ -4228,6 +4228,9 @@
           sisaPembayaran: data.remaining
         };
 
+        // Jalur tambahan: simpan juga ke database Kaone (WhatsApp & Spreadsheet tidak terpengaruh)
+        if(window.kaoneKirimPesanan){ window.kaoneKirimPesanan('wedding', payload, { nama: payload.nama, wa: payload.noWhatsapp, tanggal: payload.tanggalAcara }); }
+
         var settled = false;
         var safetyTimer = setTimeout(function(){
           if(settled){ return; }
@@ -4880,5 +4883,115 @@
     }
   </script>
 
+
+<script>
+/* ===== Kirim pesanan klien ke database Kaone (Supabase) =====
+   Ditambahkan sebagai jalur TAMBAHAN: WhatsApp dan Google Spreadsheet tetap berjalan seperti biasa.
+   - Kunci kirim dibuat dari isi data, jadi menekan tombol dua kali / koneksi mengulang tidak membuat pesanan dobel.
+   - Kalau jaringan putus, data disimpan sementara di perangkat dan dikirim ulang saat halaman dibuka lagi. */
+(function(){
+  var URL_ = 'https://gyleppavsgbtrlgbyztv.supabase.co/rest/v1/kaone_motret_pesanan_masuk';
+  var KEY_ = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5bGVwcGF2c2didHJsZ2J5enR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NjU0MDQsImV4cCI6MjEwMzM0MTQwNH0.0t7bMoTjgd-c48O37wo1QyGFsFnjrRiAkDzH8VMgw-Q';
+  var ANTRIAN = 'kaonePesananTertunda';
+  var BULAN = {januari:1,februari:2,maret:3,april:4,mei:5,juni:6,juli:7,agustus:8,september:9,oktober:10,november:11,desember:12,
+               jan:1,feb:2,mar:3,apr:4,jun:6,jul:7,agu:8,agt:8,ags:8,sep:9,sept:9,okt:10,nov:11,des:12};
+  function pad(n){ return n < 10 ? '0' + n : '' + n; }
+  function tanggalValid(th, bln, d){
+    var dt = new Date(+th, bln - 1, d);
+    return dt.getFullYear() === +th && dt.getMonth() === bln - 1 && dt.getDate() === d;
+  }
+  function tanggalIso(t){
+    t = String(t || '');
+    var m = t.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if(m && tanggalValid(m[1], +m[2], +m[3])) return m[0];
+    var thAkhir = t.match(/(\d{4})(?!.*\d{4})/);
+    var re = /(\d{1,2})\s+([A-Za-z]+)\.?(?:\s+(\d{4}))?/g, x;
+    while((x = re.exec(t))){
+      var bln = BULAN[x[2].toLowerCase()];
+      if(!bln) continue;
+      var th = x[3] || (thAkhir && thAkhir[1]);
+      var d = +x[1];
+      if(th && tanggalValid(th, bln, d)) return th + '-' + pad(bln) + '-' + pad(d);
+    }
+    return null;
+  }
+  function cyrb53(s, seed){
+    var h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+    for(var i = 0, c; i < s.length; i++){ c = s.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16);
+  }
+  function hash(s){
+    try{
+      if(window.crypto && crypto.subtle && window.TextEncoder){
+        return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function(b){
+          var a = new Uint8Array(b), o = '';
+          for(var i = 0; i < a.length; i++) o += (a[i] < 16 ? '0' : '') + a[i].toString(16);
+          return o;
+        });
+      }
+    }catch(e){}
+    return Promise.resolve(cyrb53(s, 1) + cyrb53(s, 2) + cyrb53(s, 3));
+  }
+  // Hasil: 'ok' (terkirim / sudah pernah masuk), 'ulang' (jaringan / server bermasalah), 'tolak' (data ditolak)
+  function kirim(baris){
+    var body = JSON.stringify(baris);
+    return fetch(URL_, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: KEY_, Authorization: 'Bearer ' + KEY_, Prefer: 'return=minimal' },
+      body: body,
+      keepalive: body.length < 60000
+    }).then(function(r){
+      if(r.ok || r.status === 409) return 'ok';
+      if(r.status >= 500 || r.status === 429) return 'ulang';
+      console.warn('Pesanan ditolak database, status ' + r.status);
+      return 'tolak';
+    }).catch(function(){ return 'ulang'; });
+  }
+  function bacaAntrian(){ try{ return JSON.parse(localStorage.getItem(ANTRIAN) || '[]'); }catch(e){ return []; } }
+  function simpanAntrian(a){ try{ localStorage.setItem(ANTRIAN, JSON.stringify(a.slice(-10))); }catch(e){} }
+  function antri(baris){
+    var a = bacaAntrian();
+    for(var i = 0; i < a.length; i++){ if(a[i].kunci_kirim === baris.kunci_kirim) return; }
+    a.push(baris); simpanAntrian(a);
+  }
+  function kirimUlang(){
+    var a = bacaAntrian();
+    if(!a.length) return;
+    simpanAntrian([]);
+    a.forEach(function(b){ kirim(b).then(function(h){ if(h === 'ulang') antri(b); }); });
+  }
+  window.kaoneKirimPesanan = function(sumber, payload, info){
+    try{
+      info = info || {};
+      var bersih = {};
+      for(var k in payload){ if(k !== 'waktuKirim' && k !== 'submittedAt') bersih[k] = payload[k]; }
+      return hash(sumber + '|' + JSON.stringify(bersih)).then(function(kunci){
+        var baris = {
+          kunci_kirim: kunci,
+          sumber: sumber,
+          nama: String(info.nama || '').slice(0, 200) || null,
+          wa: String(info.wa || '').slice(0, 20) || null,
+          tanggal_acara: tanggalIso(info.tanggal),
+          payload: payload
+        };
+        return kirim(baris).then(function(h){ if(h === 'ulang') antri(baris); });
+      }).catch(function(e){ console.warn('Kirim pesanan ke database gagal:', e); });
+    }catch(e){ console.warn(e); return Promise.resolve(); }
+  };
+  // Untuk form biodata (isianbiodata): ambil nama / WA / tanggal dari kolom yang ada
+  window.kaoneInfoDariFields = function(f){
+    var r = { nama: '', wa: '', tanggal: '' };
+    for(var k in f){
+      if(!r.nama && /^nama\s+(lengkap|pemesan|wisuda|penanggung)/i.test(k)) r.nama = f[k];
+      if(!r.wa && /whatsapp/i.test(k)) r.wa = f[k];
+      if(!r.tanggal && /^tanggal\s+(acara|wisuda)/i.test(k)) r.tanggal = f[k];
+    }
+    return r;
+  };
+  window.addEventListener('load', function(){ setTimeout(kirimUlang, 3000); });
+})();
+</script>
 </body>
 </html>
