@@ -750,6 +750,7 @@
   .three-col{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
   @media (max-width:640px){ .three-col{ grid-template-columns:1fr; } }
   .sub-label{ font-size:12px; color:var(--muted); margin-bottom:4px; display:block; }
+  .three-col .col-full{ grid-column:1 / -1; }
 
   /* ---------- Jarak ke Kaone Studio (di bawah kolom Maps) ---------- */
   .maps-distance{
@@ -2387,8 +2388,12 @@
               <label for="bkAddressKab" class="sub-label">Kabupaten</label>
               <input type="text" id="bkAddressKab" placeholder="Contoh: Padang Lawas Utara" required>
             </div>
+            <div class="col-full">
+              <label for="bkAddressProv" class="sub-label">Provinsi</label>
+              <input type="text" id="bkAddressProv" placeholder="Contoh: Sumatera Utara" required>
+            </div>
           </div>
-          <p class="form-note">Akan otomatis dirangkai menjadi, contoh: Aek Haruaya, Kec. Portibi, Kab. Padang Lawas Utara</p>
+          <p class="form-note">Akan otomatis dirangkai menjadi, contoh: Aek Haruaya, Kec. Portibi, Kab. Padang Lawas Utara, Prov. Sumatera Utara</p>
         </div>
 
         <div class="form-field">
@@ -2963,7 +2968,7 @@
         return fixWordCasing(part);
       }).join('');
     }
-    ['bkName','bkCouple','bkAddressDesa','bkAddressKec','bkAddressKab','bkConcept'].forEach(function(id){
+    ['bkName','bkCouple','bkAddressDesa','bkAddressKec','bkAddressKab','bkAddressProv','bkConcept'].forEach(function(id){
       var el = document.getElementById(id);
       if(!el) return;
       el.addEventListener('input', function(){
@@ -3021,6 +3026,7 @@
       if(parts.desa) out.push(parts.desa);
       if(parts.kecamatan) out.push('Kec. ' + parts.kecamatan);
       if(parts.kabupaten) out.push('Kab. ' + parts.kabupaten);
+      if(parts.provinsi) out.push('Prov. ' + parts.provinsi);
       return out.join(', ');
     }
 
@@ -4057,7 +4063,8 @@
       var address = formatAddressParts({
         desa: document.getElementById('bkAddressDesa').value.trim(),
         kecamatan: document.getElementById('bkAddressKec').value.trim(),
-        kabupaten: document.getElementById('bkAddressKab').value.trim()
+        kabupaten: document.getElementById('bkAddressKab').value.trim(),
+        provinsi: document.getElementById('bkAddressProv').value.trim()
       });
       var maps = document.getElementById('bkMaps').value.trim();
       var pengambilanEl = document.querySelector('input[name="bkPengambilan"]:checked');
