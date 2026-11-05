@@ -2369,6 +2369,15 @@ var KAONE_SHEET_BACKUP = false;
         </div>
 
         <div class="form-field">
+          <label for="bkJenisAcara">Jenis Acara <span class="req">*</span></label>
+          <select id="bkJenisAcara" required>
+            <option value="" disabled selected>Pilih jenis acara</option>
+            <option value="Wedding">Wedding</option>
+            <option value="Patuaekkon">Patuaekkon</option>
+          </select>
+        </div>
+
+        <div class="form-field">
           <label for="bkDate">9. Tanggal Acara <span class="req">*</span></label>
           <input type="date" id="bkDate" required>
         </div>
@@ -3671,6 +3680,7 @@ var KAONE_SHEET_BACKUP = false;
 
       +     '<div style="margin-bottom:24px;">'
       +       '<div style="font-family:\'Marcellus\',serif;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:#8A6A32;border-bottom:1px solid #E7D9BC;padding-bottom:8px;margin-bottom:12px;">Detail Acara</div>'
+      +       '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;"><span style="color:#8C8072;">Jenis Acara</span><span style="font-weight:500;">' + escapeHtml(d.jenisAcara || '-') + '</span></div>'
       +       '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;"><span style="color:#8C8072;">Tanggal Acara</span><span style="font-weight:500;">' + escapeHtml(d.dateFormatted) + '</span></div>'
       +       '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;"><span style="color:#8C8072;">Waktu Acara</span><span style="font-weight:500;">' + escapeHtml(d.time || '-') + '</span></div>'
       +       '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;"><span style="color:#8C8072;">Alamat Acara</span><span style="font-weight:500;text-align:right;max-width:420px;">' + escapeHtml(d.address || '-') + '</span></div>'
@@ -3733,7 +3743,7 @@ var KAONE_SHEET_BACKUP = false;
     function parseBookingText(text){
       var data = {
         name:'', phone:'', pkgName:'', pkgPrice:0, addons:[], couple:'', igBride:'', igGroom:'', photoChoice:'-',
-        dateFormatted:'-', time:'', address:'', maps:'', concept:'', pengambilan:'-', ongkir:0, vendors:'', note:'', dp:0,
+        jenisAcara:'-', dateFormatted:'-', time:'', address:'', maps:'', concept:'', pengambilan:'-', ongkir:0, vendors:'', note:'', dp:0,
         subtotal:0, discount:0, voucherCode:'', total:0, remaining:0
       };
       text.split('\n').forEach(function(rawLine){
@@ -3772,6 +3782,7 @@ var KAONE_SHEET_BACKUP = false;
           case 'nama kedua mempelai': data.couple = value; break;
           case 'ig pengantin wanita': data.igBride = withAtHandle(value); break;
           case 'ig pengantin pria': data.igGroom = withAtHandle(value); break;
+          case 'jenis acara': data.jenisAcara = value; break;
           case 'tanggal': data.dateFormatted = value; break;
           case 'waktu': data.time = value; break;
           case 'alamat': data.address = value; break;
@@ -3994,6 +4005,7 @@ var KAONE_SHEET_BACKUP = false;
         'Pemilihan Foto: ' + d.photoChoice,
         '',
         '📅 *Detail Acara*',
+        'Jenis Acara: ' + (d.jenisAcara || '-'),
         'Tanggal: ' + d.dateFormatted,
         'Waktu: ' + (d.time || '-'),
         'Alamat: ' + (d.address || '-'),
@@ -4053,6 +4065,7 @@ var KAONE_SHEET_BACKUP = false;
         couple: get('Nama Mempelai'),
         igBride: withAtHandle(get('IG Pengantin Wanita')),
         igGroom: withAtHandle(get('IG Pengantin Pria')),
+        jenisAcara: get('Jenis Acara') || '-',
         dateFormatted: get('Tanggal Acara') || '-',
         time: get('Waktu Acara'),
         address: get('Alamat'),
@@ -4082,6 +4095,7 @@ var KAONE_SHEET_BACKUP = false;
       var couple = document.getElementById('bkCouple').value.trim();
       var igBride = withAtHandle(document.getElementById('bkIgBride').value);
       var igGroom = withAtHandle(document.getElementById('bkIgGroom').value);
+      var jenisAcara = document.getElementById('bkJenisAcara').value;
       var date = document.getElementById('bkDate').value;
       var time = document.getElementById('bkTime').value;
       var address = formatAddressParts({
@@ -4124,6 +4138,7 @@ var KAONE_SHEET_BACKUP = false;
         name: name, phone: phone,
         pkgName: pkgName, pkgPrice: pkgPrice, addons: addons, addonText: addonText,
         couple: couple, igBride: igBride, igGroom: igGroom, photoChoice: photoChoice,
+        jenisAcara: jenisAcara,
         dateFormatted: dateFormatted, time: time, address: address, maps: maps, concept: concept,
         pengambilan: pengambilan, ongkir: ongkir,
         vendors: vendors, note: note, dp: dp,
@@ -4242,6 +4257,7 @@ var KAONE_SHEET_BACKUP = false;
           // — lihat kelemahan #6 di template Apps Script.
           addOnDetail: data.addons.map(function(a){ return { name: a.name, price: a.price, qty: a.qty }; }),
           pemilihanFoto: data.photoChoice,
+          jenisAcara: data.jenisAcara,
           tanggalAcara: data.dateFormatted,
           waktuAcara: data.time,
           alamat: data.address,
